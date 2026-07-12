@@ -1,0 +1,1 @@
+"""Matter Lock Events integration."""
