@@ -1,7 +1,7 @@
 {
   "domain": "matter_lock_events",
   "name": "Matter Lock Events",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "documentation": "https://github.com/jrvd007/matter-lock-events",
   "issue_tracker": "https://github.com/jrvd007/matter-lock-events/issues",
   "dependencies": ["matter"],
