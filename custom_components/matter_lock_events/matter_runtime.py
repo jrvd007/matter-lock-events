@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from homeassistant.components.matter.adapter import MatterAdapter
 
 
-MATTER_DOMAIN = "matter"
+from homeassistant.components.matter.const import DOMAIN as MATTER_DOMAIN
 
 
 def async_get_matter_entry(hass: HomeAssistant) -> MatterConfigEntry:
