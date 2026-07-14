@@ -7,3 +7,7 @@ class MatterLockEventsError(Exception):
 
 class MatterNotAvailableError(MatterLockEventsError):
     """Raised when the Matter integration is unavailable."""
+
+
+class InvalidMatterConfigurationError(MatterLockEventsError):
+    """Raised when the Matter integration configuration is invalid."""

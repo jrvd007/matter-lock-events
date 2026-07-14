@@ -2,6 +2,8 @@
 
 A Home Assistant custom integration that exposes Matter Door Lock operation events for automations.
 
+The project is being developed incrementally, with each commit representing a small, independently testable milestone.
+
 ## Goals
 
 - Expose Matter Door Lock Operation events
@@ -11,6 +13,17 @@ A Home Assistant custom integration that exposes Matter Door Lock operation even
 - Create sensors for last user and operation
 - Be fully compatible with HACS
 
-## Status
+## Project Status
 
-🚧 Early development
+Matter Lock Events is currently under active development.
+
+### Roadmap
+
+- ✅ Project framework
+- ✅ Runtime abstraction
+- ⏳ Matter event subscription
+- ⏳ LockOperation event decoding
+- ⏳ Home Assistant event generation
+- ⏳ User index extraction
+- ⏳ User name mapping
+- ⏳ HACS release

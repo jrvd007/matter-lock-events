@@ -6,6 +6,9 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
+from .exceptions import MatterLockEventsError
+from .matter_runtime import async_get_adapter
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -18,4 +21,24 @@ class MatterLockEventsManager:
 
     async def async_initialize(self) -> None:
         """Initialize the integration."""
-        _LOGGER.info("Matter Lock Events manager started")
+
+        try:
+            adapter = async_get_adapter(self.hass)
+
+        except MatterLockEventsError:
+            _LOGGER.exception(
+                "Unable to acquire the Matter runtime."
+            )
+            raise
+
+        _LOGGER.info(
+            "Matter runtime acquired successfully."
+        )
+
+        #
+        # Temporary until Commit #4
+        #
+        _LOGGER.debug(
+            "Matter adapter: %s",
+            type(adapter).__name__,
+        )
