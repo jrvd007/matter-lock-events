@@ -2,4 +2,6 @@
 
 DOMAIN = "matter_lock_events"
 
-EVENT_LOCK_OPERATION = "matter_lock_operation"
+NAME = "Matter Lock Events"
+
+__version__ = "0.0.4"

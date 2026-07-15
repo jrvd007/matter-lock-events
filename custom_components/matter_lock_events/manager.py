@@ -1,5 +1,6 @@
 """Manager for Matter Lock Events."""
 
+from .const import NAME, __version__
 from __future__ import annotations
 
 import logging
@@ -27,6 +28,12 @@ class MatterLockEventsManager:
     async def async_initialize(self) -> None:
         """Initialize the integration."""
 
+        _LOGGER.info(
+            "%s %s",
+            NAME,
+            __version__,
+        )
+        
         try:
             self._adapter = async_get_adapter(self.hass)
 
