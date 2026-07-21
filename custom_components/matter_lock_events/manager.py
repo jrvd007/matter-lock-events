@@ -1,51 +1,75 @@
 """Manager for Matter Lock Events."""
 
-from .const import NAME, __version__
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+
+from matter_server.common.models import EventType, MatterNodeEvent
 
 from homeassistant.core import HomeAssistant
 
-from .exceptions import MatterLockEventsError
-from .matter_runtime import async_get_adapter
+from homeassistant.components.matter.const import DOMAIN as MATTER_DOMAIN
+from homeassistant.components.matter.helpers import MatterConfigEntry
 
-if TYPE_CHECKING:
-    from homeassistant.components.matter.adapter import MatterAdapter
+from .const import NAME, __version__
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class MatterLockEventsManager:
-    """Coordinates the integration lifecycle."""
+    """Coordinates Matter event subscriptions."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the manager."""
         self.hass = hass
-        self._adapter: MatterAdapter | None = None
+        self._unsubscribe: Callable[[], None] | None = None
 
     async def async_initialize(self) -> None:
-        """Initialize the integration."""
+        """Initialize the manager."""
 
-        _LOGGER.info(
-            "%s %s",
-            NAME,
-            __version__,
+        _LOGGER.warning("%s %s", NAME, __version__)
+        _LOGGER.warning("Searching for Matter integration...")
+
+        matter_entries = self.hass.config_entries.async_loaded_entries(
+            MATTER_DOMAIN
         )
-        
-        try:
-            self._adapter = async_get_adapter(self.hass)
 
-        except MatterLockEventsError:
-            _LOGGER.exception(
-                "Unable to acquire the Matter runtime."
-            )
-            raise
+        if not matter_entries:
+            raise RuntimeError("Matter integration is not loaded.")
 
-        _LOGGER.info("Matter runtime acquired successfully.")
+        matter_entry: MatterConfigEntry = matter_entries[0]
 
-        _LOGGER.debug(
-            "Matter adapter: %s",
-            type(self._adapter).__name__,
+        _LOGGER.warning("Matter integration found.")
+
+        matter_client = matter_entry.runtime_data.adapter.matter_client
+
+        _LOGGER.warning("Subscribing to Matter node events...")
+
+        self._unsubscribe = matter_client.subscribe_events(
+            callback=self._handle_node_event,
+            event_filter=EventType.NODE_EVENT,
         )
+
+        _LOGGER.warning("Matter node event subscription established.")
+
+    async def async_shutdown(self) -> None:
+        """Shutdown the manager."""
+
+        if self._unsubscribe is not None:
+            _LOGGER.warning("Unsubscribing from Matter node events...")
+            self._unsubscribe()
+            self._unsubscribe = None
+
+    def _handle_node_event(
+        self,
+        event: EventType,
+        data: MatterNodeEvent,
+    ) -> None:
+        """Handle Matter node events."""
+
+        _LOGGER.warning("--------------------------------")
+        _LOGGER.warning("Matter node event received")
+        _LOGGER.warning("Event: %s", event)
+        _LOGGER.warning("Data: %s", data)
+        _LOGGER.warning("--------------------------------")

@@ -15,7 +15,10 @@ from .models import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN
 
+"""_LOGGER = logging.getLogger(f"custom_components.{DOMAIN}")"""
+"""_LOGGER.warning("Logger name: %s", _LOGGER.name)"""
 
 async def async_setup(
     hass: HomeAssistant,
@@ -34,7 +37,7 @@ async def async_setup_entry(
 ) -> bool:
     """Set up a config entry."""
 
-    _LOGGER.info("Initializing integration...")
+    _LOGGER.warning("Initializing integration...")
 
     manager = MatterLockEventsManager(hass)
 
@@ -44,7 +47,7 @@ async def async_setup_entry(
         manager=manager,
     )
 
-    _LOGGER.info("Initialization complete.")
+    _LOGGER.warning("Initialization complete.")
 
     return True
 
@@ -55,6 +58,8 @@ async def async_unload_entry(
 ) -> bool:
     """Unload the config entry."""
 
-    _LOGGER.info("Unloading integration.")
+    await entry.runtime_data.manager.async_shutdown()
+
+    _LOGGER.warning("Integration unloaded.")
 
     return True
