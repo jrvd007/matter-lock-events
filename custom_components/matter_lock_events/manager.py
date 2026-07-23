@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+
+
 import logging
 from collections.abc import Callable
 
@@ -13,6 +15,8 @@ from homeassistant.components.matter.const import DOMAIN as MATTER_DOMAIN
 from homeassistant.components.matter.helpers import MatterConfigEntry
 
 from .const import NAME, __version__
+
+from .translator import translate_door_lock_operation
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,13 +67,44 @@ class MatterLockEventsManager:
 
     def _handle_node_event(
         self,
-        event: EventType,
-        data: MatterNodeEvent,
+        event_type: EventType,
+        event: MatterNodeEvent,
     ) -> None:
         """Handle Matter node events."""
+      
+        if event.cluster_id != clusters.DoorLock.id:
+            return
 
-        _LOGGER.warning("--------------------------------")
-        _LOGGER.warning("Matter node event received")
-        _LOGGER.warning("Event: %s", event)
-        _LOGGER.warning("Data: %s", data)
-        _LOGGER.warning("--------------------------------")
+        if event.event_id != clusters.DoorLock.Events.LockOperation.event_id:
+            return
+
+        operation = translate_door_lock_operation(event)
+
+        if operation is None:
+            return
+
+        _LOGGER.warning(
+            (
+                "\n"
+                "========== Matter Door Lock Operation ==========\n"
+                "Node ID: %s \n"
+                "Endpoint: %s \n"
+                "Operation: %s \n"
+                "Source: %s \n"
+                "User Index: %s \n"
+                "Credentials: %s \n"
+                "==============================================="
+            ),
+            operation.node_id,
+            operation.endpoint_id,
+            operation.operation_type.name,
+            operation.operation_source.name,
+            operation.user_index,
+            [
+                (
+                    credential.credential_type.name,
+                    credential.credential_index,
+                )
+                for credential in operation.credentials
+            ],
+        )
