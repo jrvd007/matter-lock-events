@@ -14,6 +14,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.components.matter.const import DOMAIN as MATTER_DOMAIN
 from homeassistant.components.matter.helpers import MatterConfigEntry
 
+from chip.clusters import Objects as clusters
+
 from .const import NAME, __version__
 
 from .translator import translate_door_lock_operation
@@ -77,7 +79,7 @@ class MatterLockEventsManager:
 
         if event.event_id != clusters.DoorLock.Events.LockOperation.event_id:
             return
-
+        
         operation = translate_door_lock_operation(event)
 
         if operation is None:
@@ -108,3 +110,4 @@ class MatterLockEventsManager:
                 for credential in operation.credentials
             ],
         )
+        

@@ -18,3 +18,15 @@
 ### Fixed
 
 - Correctly handle Matter events with `credentials=None`.
+
+## v0.0.6
+
+### Changed
+
+- Validated the architectural boundary between the Matter Server transport layer
+  and the integration domain model.
+
+### Documentation
+
+- Added ADR-0004 describing the translator as the boundary between Matter Server
+  transport objects and immutable project-owned domain models.
