@@ -27,4 +27,7 @@ class LockOperation:
 
     user_index: int | None
 
+    fabric_index: int | None
+    source_node: int | None
+
     credentials: tuple[LockCredential, ...]

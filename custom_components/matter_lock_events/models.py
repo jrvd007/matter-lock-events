@@ -6,8 +6,10 @@ from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 
-from .manager import MatterLockEventsManager
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from .manager import MatterLockEventsManager
 
 @dataclass(slots=True)
 class MatterLockEventsData:

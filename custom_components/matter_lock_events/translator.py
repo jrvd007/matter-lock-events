@@ -70,5 +70,7 @@ def translate_door_lock_operation(
         operation_type=operation_type,
         operation_source=operation_source,
         user_index=data.get("userIndex"),
+        fabric_index=data.get("fabricIndex"),
+        source_node=data.get("sourceNode"),
         credentials=tuple(credentials),
     )

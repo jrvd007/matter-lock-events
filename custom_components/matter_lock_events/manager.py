@@ -16,9 +16,11 @@ from homeassistant.components.matter.helpers import MatterConfigEntry
 
 from chip.clusters import Objects as clusters
 
-from .const import NAME, __version__
+from .const import NAME, EVENT_OPERATION, __version__
 
 from .translator import translate_door_lock_operation
+
+from .event_adapter import serialize_operation
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,33 +83,18 @@ class MatterLockEventsManager:
             return
         
         operation = translate_door_lock_operation(event)
+        
+        event_data = serialize_operation(operation)
 
         if operation is None:
             return
 
-        _LOGGER.warning(
-            (
-                "\n"
-                "========== Matter Door Lock Operation ==========\n"
-                "Node ID: %s \n"
-                "Endpoint: %s \n"
-                "Operation: %s \n"
-                "Source: %s \n"
-                "User Index: %s \n"
-                "Credentials: %s \n"
-                "==============================================="
-            ),
-            operation.node_id,
-            operation.endpoint_id,
-            operation.operation_type.name,
-            operation.operation_source.name,
-            operation.user_index,
-            [
-                (
-                    credential.credential_type.name,
-                    credential.credential_index,
-                )
-                for credential in operation.credentials
-            ],
+        self.hass.bus.async_fire(
+            EVENT_OPERATION,
+            event_data,
         )
-        
+
+        _LOGGER.debug(
+            "Published Home Assistant event: %s",
+            EVENT_OPERATION,
+        )
