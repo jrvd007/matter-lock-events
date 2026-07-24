@@ -4,6 +4,17 @@ A Home Assistant custom integration that exposes Matter Door Lock operation even
 
 The project is being developed incrementally, with each commit representing a small, independently testable milestone.
 
+## Home Assistant Events
+
+The integration publishes Matter Door Lock operations through the Home Assistant
+event bus.
+
+Event type:
+
+matter_lock_events.operation
+
+See `docs/events.md` for the complete event schema.
+
 ## Goals
 
 - Expose Matter Door Lock Operation events

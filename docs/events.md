@@ -1,43 +1,58 @@
-# Matter Lock Events - Event API
+# Matter Lock Events
 
 ## Overview
 
-This integration exposes Matter Door Lock operations through the Home Assistant
+Matter Lock Events exposes Matter Door Lock operations through the Home Assistant
 event bus.
 
-The integration emits a single generic event whose payload preserves the Matter
-semantics while providing Home Assistant-friendly string values.
+The integration emits a single event whose payload preserves Matter semantics
+while providing Home Assistant-friendly values.
 
-## Event
+---
 
-Event type:
+## Event Type
 
 matter_lock_events.operation
+
+---
 
 ## Event Data
 
 | Field | Type | Description |
-|-------|------|-------------|
+|--------|------|-------------|
+| api_version | int | Event API version |
 | node_id | int | Matter node identifier |
 | endpoint_id | int | Matter endpoint identifier |
-| operation | string | Door lock operation name |
-| operation_id | int | Raw Matter LockOperationType enum value |
-| source | string | Door lock operation source name |
-| source_id | int | Raw Matter OperationSource enum value |
+| operation | string | Matter operation name |
+| operation_id | int | Raw Matter operation enum |
+| source | string | Matter operation source |
+| source_id | int | Raw Matter source enum |
 | user_index | int \| null | Matter user index |
-| fabric_index | int \| null | Matter fabric index |
+| fabric_index | int \| null | Matter fabric identifier |
 | source_node | int \| null | Originating Matter node |
 | credentials | list | Credentials used during the operation |
 
-## Credentials
+---
 
-Each credential is represented as:
+## Credential Object
 
 | Field | Type | Description |
-|-------|------|-------------|
-| credential_type | string | Credential type name |
-| credential_type_id | int | Raw Matter CredentialType enum value |
-| credential_index | int | Credential index |
+|--------|------|-------------|
+| credential_type | string | Credential type |
+| credential_type_id | int | Raw Matter credential enum |
+| credential_index | int | Credential slot |
+
+---
+
+## API Stability
+
+The event type and documented field names constitute the public API of this
+integration.
+
+Future releases may add new optional fields but will not rename or remove
+existing fields without a major version increment of the event API.
+
+---
 
 ## Example
 
@@ -45,6 +60,8 @@ Each credential is represented as:
 event_type: matter_lock_events.operation
 
 event_data:
+  api_version: 1
+
   node_id: 23
   endpoint_id: 1
 
@@ -60,12 +77,4 @@ event_data:
 
   source_node: 112233
 
-  credentials: []```
-  
-## API Stability
-
-The event type and documented field names are considered part of the public API
-of this integration.
-
-Future releases may add new optional fields but will not rename or remove
-existing fields without a major version change. 
+  credentials: []

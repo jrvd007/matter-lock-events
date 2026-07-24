@@ -19,6 +19,8 @@ def serialize_operation(
     """Convert a LockOperation into a Home Assistant event payload."""
 
     return {
+        "api_version": 1,
+        
         "node_id": operation.node_id,
         "endpoint_id": operation.endpoint_id,
 

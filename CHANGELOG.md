@@ -30,3 +30,20 @@
 
 - Added ADR-0004 describing the translator as the boundary between Matter Server
   transport objects and immutable project-owned domain models.
+  
+## v0.0.7
+
+### Added
+
+- Home Assistant event API.
+- Event serializer.
+- Public event `matter_lock_events.operation`.
+
+### Documentation
+
+- Added Event API reference.
+- Added ADR-0005 documenting the event architecture.
+
+### Changed
+
+- Added event API version field.
