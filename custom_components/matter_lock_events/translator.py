@@ -1,4 +1,11 @@
-"""Matter Door Lock translator."""
+"""
+Translate Matter Server transport data into immutable domain models.
+
+The Matter Server client API exposes Door Lock event data as
+MatterNodeEvent.data (dict[str, Any]). This module is the only
+component that understands the transport format and converts it
+into the integration's domain model.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +17,17 @@ from matter_server.common.models import MatterNodeEvent
 from .door_lock import (
     LockCredential,
     LockOperation,
+)
+
+from .const import (
+    DATA_CREDENTIAL_INDEX,
+    DATA_CREDENTIAL_TYPE,
+    DATA_CREDENTIALS,
+    DATA_FABRIC_INDEX,
+    DATA_LOCK_OPERATION_TYPE,
+    DATA_OPERATION_SOURCE,
+    DATA_SOURCE_NODE,
+    DATA_USER_INDEX,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,42 +43,42 @@ def translate_door_lock_operation(
     try:
         operation_type = (
             clusters.DoorLock.Enums.LockOperationTypeEnum(
-                data["lockOperationType"]
+                data[DATA_LOCK_OPERATION_TYPE]
             )
         )
 
         operation_source = (
             clusters.DoorLock.Enums.OperationSourceEnum(
-                data["operationSource"]
+                data[DATA_OPERATION_SOURCE]
             )
         )
 
     except (KeyError, ValueError) as err:
         _LOGGER.warning(
-            "Unable to translate Door Lock event: %s",
+            "Unable to translate Door Lock operation: %s",
             err,
         )
         return None
 
     credentials: list[LockCredential] = []
 
-    for credential in data.get("credentials") or ():
+    for credential in data.get(DATA_CREDENTIALS) or ():
 
         try:
             credentials.append(
                 LockCredential(
                     credential_type=(
                         clusters.DoorLock.Enums.CredentialTypeEnum(
-                            credential["credentialType"]
+                            credential[DATA_CREDENTIAL_TYPE]
                         )
                     ),
-                    credential_index=credential["credentialIndex"],
+                    credential_index=credential[DATA_CREDENTIAL_INDEX],
                 )
             )
 
         except (KeyError, ValueError) as err:
             _LOGGER.warning(
-                "Ignoring invalid credential: %s",
+                "Ignoring invalid Door Lock credential: %s",
                 err,
             )
 
@@ -69,8 +87,8 @@ def translate_door_lock_operation(
         endpoint_id=event.endpoint_id,
         operation_type=operation_type,
         operation_source=operation_source,
-        user_index=data.get("userIndex"),
-        fabric_index=data.get("fabricIndex"),
-        source_node=data.get("sourceNode"),
+        user_index=data.get(DATA_USER_INDEX),
+        fabric_index=data.get(DATA_FABRIC_INDEX),
+        source_node=data.get(DATA_SOURCE_NODE),
         credentials=tuple(credentials),
     )

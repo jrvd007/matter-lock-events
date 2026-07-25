@@ -38,3 +38,32 @@ Matter Lock Events is currently under active development.
 - ⏳ User index extraction
 - ⏳ User name mapping
 - ⏳ HACS release
+
+## Development
+
+### Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+### Activate
+Windows:
+```bash
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+```bash
+source .venv/bin/activate
+```
+
+### Install Development Dependencies
+```bash
+pip install -r requirements-dev.txt
+```
+
+### Run Tests
+```bash
+pytest
+```
