@@ -19,3 +19,35 @@ REMOTE_UNLOCK = {
     "sourceNode": 112233,
     "credentials": None,
 }
+
+KEYPAD_LOCK = {
+    "lockOperationType": 0,
+    "operationSource": 5,
+    "userIndex": None,
+    "fabricIndex": None,
+    "sourceNode": None,
+    "credentials": None,
+}
+
+KEYPAD_UNLOCK = {
+    "lockOperationType": 1,
+    "operationSource": 3,
+    "userIndex": 1,
+    "fabricIndex": None,
+    "sourceNode": None,
+    "credentials": [
+        {
+            "credentialType": 1,
+            "credentialIndex": 1,
+        }
+    ],
+}
+
+MANUAL_THUMBTURN_LOCK = {
+    "lockOperationType": 0,
+    "operationSource": 1,
+    "userIndex": None,
+    "fabricIndex": None,
+    "sourceNode": None,
+    "credentials": None,
+}

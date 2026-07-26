@@ -1,1 +1,2 @@
-matter-server==9.1.0
+python-matter-server==8.1.2
+home-assistant-chip-clusters==2025.7.0

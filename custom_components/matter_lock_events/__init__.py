@@ -4,30 +4,21 @@ from __future__ import annotations
 
 import logging
 
-from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-
-from .const import NAME, __version__
-from .manager import MatterLockEventsManager
-from .models import (
-    MatterLockEventsConfigEntry,
-    MatterLockEventsData,
-)
-
 _LOGGER = logging.getLogger(__name__)
-from .const import DOMAIN
 
-"""_LOGGER = logging.getLogger(f"custom_components.{DOMAIN}")"""
-"""_LOGGER.warning("Logger name: %s", _LOGGER.name)"""
+from typing import TYPE_CHECKING, Any
 
-async def async_setup(
-    hass: HomeAssistant,
-    config,
-) -> bool:
+from .const import DOMAIN, NAME, __version__
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+
+    from .models import MatterLockEventsConfigEntry, MatterLockEventsData
+
+
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up the integration."""
-
-    _LOGGER.info("%s %s", NAME, __version__)
-
     return True
 
 
@@ -36,19 +27,18 @@ async def async_setup_entry(
     entry: MatterLockEventsConfigEntry,
 ) -> bool:
     """Set up a config entry."""
+    from .manager import MatterLockEventsManager
+    from .models import MatterLockEventsData
 
+    _LOGGER.info("%s %s", NAME, __version__)
     _LOGGER.warning("Initializing integration...")
 
     manager = MatterLockEventsManager(hass)
-
     await manager.async_initialize()
 
-    entry.runtime_data = MatterLockEventsData(
-        manager=manager,
-    )
+    entry.runtime_data = MatterLockEventsData(manager=manager)
 
     _LOGGER.warning("Initialization complete.")
-
     return True
 
 
@@ -57,9 +47,6 @@ async def async_unload_entry(
     entry: MatterLockEventsConfigEntry,
 ) -> bool:
     """Unload the config entry."""
-
     await entry.runtime_data.manager.async_shutdown()
-
     _LOGGER.warning("Integration unloaded.")
-
     return True

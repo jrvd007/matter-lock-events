@@ -8,12 +8,15 @@ from custom_components.matter_lock_events.translator import (
     translate_door_lock_operation,
 )
 
-from .fixtures.schlage_sense_pro_events import REMOTE_UNLOCK
+from tests.fixtures.schlage_sense_pro_events import (
+    KEYPAD_LOCK, 
+    REMOTE_UNLOCK,
+    KEYPAD_UNLOCK,
+    MANUAL_THUMBTURN_LOCK,
+)
 
 def test_translate_remote_unlock() -> None:
     """Translate a remote unlock event."""
-
-    # Arrange
 
     event = dataclass_from_dict(
         MatterNodeEvent,
@@ -29,29 +32,104 @@ def test_translate_remote_unlock() -> None:
         },
     )
 
-    # Act
-
     operation = translate_door_lock_operation(event)
 
-    # Assert
-
     assert operation is not None
-
     assert operation.node_id == 23
     assert operation.endpoint_id == 1
-
-    assert (
-        operation.operation_type
-        == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
-    )
-
-    assert (
-        operation.operation_source
-        == clusters.DoorLock.Enums.OperationSourceEnum.kRemote
-    )
-
+    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
+    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kRemote
     assert operation.user_index is None
     assert operation.fabric_index == 2
     assert operation.source_node == 112233
+    assert operation.credentials == ()
 
+
+def test_translate_keypad_lock() -> None:
+    """Translate a keypad lock event."""
+
+    event = dataclass_from_dict(
+        MatterNodeEvent,
+        {
+            "node_id": 23,
+            "endpoint_id": 1,
+            "cluster_id": clusters.DoorLock.id,
+            "event_id": clusters.DoorLock.Events.LockOperation.event_id,
+            "event_number": 2,
+            "priority": 1,
+            "timestamp": 0,
+            "data": KEYPAD_LOCK,
+        },
+    )
+
+    operation = translate_door_lock_operation(event)
+
+    assert operation is not None
+    assert operation.node_id == 23
+    assert operation.endpoint_id == 1
+    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
+    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kButton
+    assert operation.user_index is None
+    assert operation.fabric_index is None
+    assert operation.source_node is None
+    assert operation.credentials == ()
+
+def test_translate_keypad_unlock() -> None:
+    """Translate a keypad unlock event."""
+
+    event = dataclass_from_dict(
+        MatterNodeEvent,
+        {
+            "node_id": 23,
+            "endpoint_id": 1,
+            "cluster_id": clusters.DoorLock.id,
+            "event_id": clusters.DoorLock.Events.LockOperation.event_id,
+            "event_number": 3,
+            "priority": 1,
+            "timestamp": 0,
+            "data": KEYPAD_UNLOCK,
+        },
+    )
+
+    operation = translate_door_lock_operation(event)
+
+    assert operation is not None
+    assert operation.node_id == 23
+    assert operation.endpoint_id == 1
+    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
+    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kKeypad
+    assert operation.user_index == 1
+    assert operation.fabric_index is None
+    assert operation.source_node is None
+    assert len(operation.credentials) == 1
+    assert operation.credentials[0].credential_type == clusters.DoorLock.Enums.CredentialTypeEnum.kPin
+    assert operation.credentials[0].credential_index == 1
+
+def test_translate_manual_thumbturn_lock() -> None:
+    """Translate a manual thumbturn lock event."""
+
+    event = dataclass_from_dict(
+        MatterNodeEvent,
+        {
+            "node_id": 23,
+            "endpoint_id": 1,
+            "cluster_id": clusters.DoorLock.id,
+            "event_id": clusters.DoorLock.Events.LockOperation.event_id,
+            "event_number": 4,
+            "priority": 1,
+            "timestamp": 0,
+            "data": MANUAL_THUMBTURN_LOCK,
+        },
+    )
+
+    operation = translate_door_lock_operation(event)
+
+    assert operation is not None
+    assert operation.node_id == 23
+    assert operation.endpoint_id == 1
+    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
+    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kManual
+    assert operation.user_index is None
+    assert operation.fabric_index is None
+    assert operation.source_node is None
     assert operation.credentials == ()
