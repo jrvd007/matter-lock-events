@@ -2,25 +2,21 @@
 
 from __future__ import annotations
 
-
-
 import logging
 from collections.abc import Callable
-
-from matter_server.common.models import EventType, MatterNodeEvent
-
-from homeassistant.core import HomeAssistant
-
-from homeassistant.components.matter.const import DOMAIN as MATTER_DOMAIN
-from homeassistant.components.matter.helpers import MatterConfigEntry
+from typing import TYPE_CHECKING
 
 from chip.clusters import Objects as clusters
+from matter_server.common.models import EventType, MatterNodeEvent
 
-from .const import NAME, EVENT_OPERATION, __version__
-
+from .const import EVENT_OPERATION, NAME, __version__
+from .door_lock import LockOperation
+from .event_adapter import serialize_operation
 from .translator import translate_door_lock_operation
 
-from .event_adapter import serialize_operation
+if TYPE_CHECKING:
+    from homeassistant.components.matter.helpers import MatterConfigEntry
+    from homeassistant.core import HomeAssistant
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +36,7 @@ class MatterLockEventsManager:
         _LOGGER.warning("Searching for Matter integration...")
 
         matter_entries = self.hass.config_entries.async_loaded_entries(
-            MATTER_DOMAIN
+            "matter"
         )
 
         if not matter_entries:
@@ -69,32 +65,33 @@ class MatterLockEventsManager:
             self._unsubscribe()
             self._unsubscribe = None
 
-    def _handle_node_event(
-        self,
-        event_type: EventType,
-        event: MatterNodeEvent,
-    ) -> None:
-        """Handle Matter node events."""
-      
-        if event.cluster_id != clusters.DoorLock.id:
-            return
-
-        if event.event_id != clusters.DoorLock.Events.LockOperation.event_id:
-            return
-        
-        operation = translate_door_lock_operation(event)
-        
+    def _fire_operation(self, operation: LockOperation) -> None:
+        """Fire a Home Assistant event for a lock operation."""
         event_data = serialize_operation(operation)
-
-        if operation is None:
-            return
 
         self.hass.bus.async_fire(
             EVENT_OPERATION,
             event_data,
         )
 
-        _LOGGER.debug(
-            "Published Home Assistant event: %s",
-            EVENT_OPERATION,
-        )
+        _LOGGER.debug("Published Home Assistant event: %s", EVENT_OPERATION)
+
+    def _handle_node_event(
+        self,
+        event_type: EventType,
+        event: MatterNodeEvent,
+    ) -> None:
+        """Handle Matter node events."""
+
+        if event.cluster_id != clusters.DoorLock.id:
+            return
+
+        if event.event_id != clusters.DoorLock.Events.LockOperation.event_id:
+            return
+
+        operation = translate_door_lock_operation(event)
+
+        if operation is None:
+            return
+
+        self._fire_operation(operation)

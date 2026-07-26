@@ -67,3 +67,11 @@ pip install -r requirements-dev.txt
 ```bash
 pytest
 ```
+
+### Run a single test file
+
+```bash
+pytest tests/test_translator.py
+pytest tests/test_event_adapter.py
+pytest tests/test_manager.py
+```
