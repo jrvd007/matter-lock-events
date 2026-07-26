@@ -47,3 +47,18 @@
 ### Changed
 
 - Added event API version field.
+
+## v0.0.8
+
+### Added
+- Regression tests for translator, serializer, and manager behavior using real captured Matter payloads.
+- Local development workflow documentation for running tests outside Home Assistant.
+
+### Changed
+- Centralized Matter Server transport keys in const.py.
+- Hardened the translator boundary between Matter Server transport data and the immutable domain model.
+- Added manager orchestration coverage for publishing Home Assistant events and ignoring unrelated Matter events.
+
+### Fixed
+- Prevented import-time Home Assistant dependencies from blocking local unit tests.
+- Improved testability by making the integration package import-light.
