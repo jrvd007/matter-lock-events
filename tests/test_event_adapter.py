@@ -23,10 +23,14 @@ def test_serialize_unlock_remote() -> None:
         credentials=(),
     )
 
-    payload = serialize_operation(operation)
+    payload = serialize_operation(
+        operation,                      
+        entity_id="lock.sense_pro",
+    )
 
     assert payload == {
         "api_version": 1,
+        "entity_id": "lock.sense_pro",
         "node_id": 23,
         "endpoint_id": 1,
         "operation": "unlock",
@@ -54,12 +58,16 @@ def test_serialize_lock_button() -> None:
         credentials=(),
     )
 
-    payload = serialize_operation(operation)
+    payload = serialize_operation(
+        operation,
+        entity_id="lock.sense_pro",
+    )
 
     assert payload == {
         "api_version": 1,
         "node_id": 23,
         "endpoint_id": 1,
+        "entity_id": "lock.sense_pro",
         "operation": "lock",
         "operation_id": 0,
         "source": "button",
@@ -89,12 +97,15 @@ def test_serialize_unlock_keypad() -> None:
         ),
     )
 
-    payload = serialize_operation(operation)
+    payload = serialize_operation(
+        operation,
+        entity_id=None,)
 
     assert payload == {
         "api_version": 1,
         "node_id": 23,
         "endpoint_id": 1,
+        "entity_id": None,
         "operation": "unlock",
         "operation_id": 1,
         "source": "keypad",
@@ -125,12 +136,16 @@ def test_serialize_lock_manual() -> None:
         credentials=(),
     )
 
-    payload = serialize_operation(operation)
+    payload = serialize_operation(
+        operation,
+        entity_id=None,
+    )
 
     assert payload == {
         "api_version": 1,
         "node_id": 23,
         "endpoint_id": 1,
+        "entity_id": None,
         "operation": "lock",
         "operation_id": 0,
         "source": "manual",

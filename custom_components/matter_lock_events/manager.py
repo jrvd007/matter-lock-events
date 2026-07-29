@@ -13,6 +13,9 @@ from .const import EVENT_OPERATION, NAME, __version__
 from .door_lock import LockOperation
 from .event_adapter import serialize_operation
 from .translator import translate_door_lock_operation
+from .entity_resolver import resolve_entity_id
+
+
 
 if TYPE_CHECKING:
     from homeassistant.components.matter.helpers import MatterConfigEntry
@@ -28,7 +31,9 @@ class MatterLockEventsManager:
         """Initialize the manager."""
         self.hass = hass
         self._unsubscribe: Callable[[], None] | None = None
-
+        self._matter_client = None
+        self._server_info = None
+        
     async def async_initialize(self) -> None:
         """Initialize the manager."""
 
@@ -48,6 +53,9 @@ class MatterLockEventsManager:
 
         matter_client = matter_entry.runtime_data.adapter.matter_client
 
+        self._matter_client = matter_client
+        self._server_info = matter_client.server_info
+
         _LOGGER.warning("Subscribing to Matter node events...")
 
         self._unsubscribe = matter_client.subscribe_events(
@@ -57,6 +65,7 @@ class MatterLockEventsManager:
 
         _LOGGER.warning("Matter node event subscription established.")
 
+
     async def async_shutdown(self) -> None:
         """Shutdown the manager."""
 
@@ -65,9 +74,12 @@ class MatterLockEventsManager:
             self._unsubscribe()
             self._unsubscribe = None
 
-    def _fire_operation(self, operation: LockOperation) -> None:
+    def _fire_operation(self, operation: LockOperation, entity_id: str | None,) -> None:
         """Fire a Home Assistant event for a lock operation."""
-        event_data = serialize_operation(operation)
+        event_data = serialize_operation(
+            operation,
+            entity_id=entity_id,
+        )
 
         self.hass.bus.async_fire(
             EVENT_OPERATION,
@@ -94,4 +106,15 @@ class MatterLockEventsManager:
         if operation is None:
             return
 
-        self._fire_operation(operation)
+        entity_id = resolve_entity_id(
+            self.hass,
+            self._server_info,
+            self._matter_client,
+            operation.node_id,
+            operation.endpoint_id,
+        )
+
+        self._fire_operation(
+            operation,
+            entity_id,
+        )

@@ -26,17 +26,33 @@ def test_handle_node_event_fires_home_assistant_event(
 
     hass = FakeHass()
     manager = MatterLockEventsManager(hass)
+    manager._server_info = Mock()
+    manager._matter_client = Mock()
 
-    fake_operation = object()
-    fake_payload = {"operation": "unlock", "source": "remote"}
+    fake_operation = SimpleNamespace(
+        node_id=23,
+        endpoint_id=1,
+    )
+
+    fake_entity_id = "lock.sense_pro"
+
+    fake_payload = {
+        "operation": "unlock",
+        "source": "remote",
+        "entity_id": fake_entity_id,
+    }
 
     monkeypatch.setattr(
         "custom_components.matter_lock_events.manager.translate_door_lock_operation",
         lambda event: fake_operation,
     )
     monkeypatch.setattr(
+       "custom_components.matter_lock_events.manager.resolve_entity_id",
+        lambda *args, **kwargs: fake_entity_id,
+    )
+    monkeypatch.setattr(
         "custom_components.matter_lock_events.manager.serialize_operation",
-        lambda operation: fake_payload,
+        lambda operation, entity_id: fake_payload,
     )
 
     event = SimpleNamespace(
