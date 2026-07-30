@@ -9,7 +9,7 @@ EVENT_OPERATION = "matter_lock_events.operation"
 # Matter entity description key used by the Home Assistant Matter integration.
 MATTER_LOCK_ENTITY_KEY = "MatterLock"
 
-__version__ = "0.0.9"
+__version__ = "0.1.0"
 
 # -----------------------------------------------------------------------------
 # MatterNodeEvent.data transport keys
