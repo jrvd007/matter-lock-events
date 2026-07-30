@@ -14,6 +14,10 @@ Major architectural decisions made during the development of the project.
 
 - `adr/README.md` — ADR index.
 - `adr/0001-matter-runtime.md` — Accessing the Matter runtime.
+- `adr/0002-config-entry.md` — Config Entries.
+- `adr/0003-domain-model-boundary.md` — Domain Model Boundary.
+- `adr/0004-Matter-Server-Transport-Layer.md` — Matter Server Transport Layer.
+- `adr/0005-Expose-Door-Lock-operations.md` — Single event for Door Lock.
 
 ## Future Documentation
 

@@ -16,6 +16,7 @@ def _enum_name(value: Enum) -> str:
 def serialize_operation(
     operation: LockOperation,
     entity_id: str | None = None,
+    user: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Convert a LockOperation into a Home Assistant event payload."""
 
@@ -34,6 +35,7 @@ def serialize_operation(
         "source_id": int(operation.operation_source),
 
         "user_index": operation.user_index,
+        "user_name": user["user_name"] if user else None,
 
         "fabric_index": operation.fabric_index,
 

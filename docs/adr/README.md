@@ -9,6 +9,10 @@ An ADR documents a significant architectural decision that has a long-term impac
 | ADR | Title |
 |-----|-------|
 | ADR-0001 | Accessing the Matter Runtime |
+| ADR-0002 | Config Entries |
+| ADR-0003 | Domain Model Boundary |
+| ADR-0004 | Matter Server Transport Layer |
+| ADR-0005 | Single event for Door Lock |
 
 ## ADR Format
 

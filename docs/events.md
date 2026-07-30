@@ -23,11 +23,13 @@ matter_lock_events.operation
 | api_version | int | Event API version |
 | node_id | int | Matter node identifier |
 | endpoint_id | int | Matter endpoint identifier |
+| entity_id | string | null | Home Assistant Entity ID |
 | operation | string | Matter operation name |
 | operation_id | int | Raw Matter operation enum |
 | source | string | Matter operation source |
 | source_id | int | Raw Matter source enum |
 | user_index | int \| null | Matter user index |
+| user_name | string | null | Matter user name |
 | fabric_index | int \| null | Matter fabric identifier |
 | source_node | int \| null | Originating Matter node |
 | credentials | list | Credentials used during the operation |
@@ -65,6 +67,8 @@ event_data:
   node_id: 23
   endpoint_id: 1
 
+  entity_id: lock.sense_pro
+
   operation: unlock
   operation_id: 1
 
@@ -72,6 +76,7 @@ event_data:
   source_id: 7
 
   user_index: null
+  user_name: John
 
   fabric_index: 2
 

@@ -26,6 +26,7 @@ def test_serialize_unlock_remote() -> None:
     payload = serialize_operation(
         operation,                      
         entity_id="lock.sense_pro",
+        user=None,
     )
 
     assert payload == {
@@ -38,6 +39,7 @@ def test_serialize_unlock_remote() -> None:
         "source": "remote",
         "source_id": 7,
         "user_index": None,
+        "user_name":None,
         "fabric_index": 2,
         "source_node": 112233,
         "credentials": [],
@@ -61,6 +63,7 @@ def test_serialize_lock_button() -> None:
     payload = serialize_operation(
         operation,
         entity_id="lock.sense_pro",
+        user=None,
     )
 
     assert payload == {
@@ -73,6 +76,7 @@ def test_serialize_lock_button() -> None:
         "source": "button",
         "source_id": 5,
         "user_index": None,
+        "user_name":None,
         "fabric_index": None,
         "source_node": None,
         "credentials": [],
@@ -99,7 +103,12 @@ def test_serialize_unlock_keypad() -> None:
 
     payload = serialize_operation(
         operation,
-        entity_id=None,)
+        entity_id=None,
+        user={
+        "user_index": 1,
+        "user_name": "John",
+        },
+    )
 
     assert payload == {
         "api_version": 1,
@@ -111,6 +120,7 @@ def test_serialize_unlock_keypad() -> None:
         "source": "keypad",
         "source_id": 3,
         "user_index": 1,
+        "user_name": "John",
         "fabric_index": None,
         "source_node": None,
         "credentials": [
@@ -139,6 +149,7 @@ def test_serialize_lock_manual() -> None:
     payload = serialize_operation(
         operation,
         entity_id=None,
+        user=None,
     )
 
     assert payload == {
@@ -151,6 +162,7 @@ def test_serialize_lock_manual() -> None:
         "source": "manual",
         "source_id": 1,
         "user_index": None,
+        "user_name": None,
         "fabric_index": None,
         "source_node": None,
         "credentials": [],
