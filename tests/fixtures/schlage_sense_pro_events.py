@@ -51,3 +51,13 @@ MANUAL_THUMBTURN_LOCK = {
     "sourceNode": None,
     "credentials": None,
 }
+
+WRONG_PIN = {
+    "lockOperationType": 1,
+    "operationSource": 3,
+    "operationError" : 1,
+    "userIndex": None,
+    "fabricIndex": None,
+    "sourceNode": None,
+    "credentials": None,
+}

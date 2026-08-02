@@ -6,7 +6,32 @@ from typing import Any
 
 from enum import Enum
 
-from .door_lock import LockOperation
+from .door_lock import (
+    LockOperation, 
+    LockOperationError,
+)
+
+from .const import (
+    API_VERSION,
+    FIELD_API_VERSION,
+    FIELD_NODE_ID,
+    FIELD_ENDPOINT_ID,
+    FIELD_ENTITY_ID,
+    FIELD_OPERATION,
+    FIELD_OPERATION_ID,
+    FIELD_SOURCE,
+    FIELD_SOURCE_ID,
+    FIELD_USER_INDEX,
+    FIELD_USER_NAME,
+    FIELD_FABRIC_INDEX,
+    FIELD_SOURCE_NODE,
+    FIELD_CREDENTIALS,
+    FIELD_CREDENTIAL_TYPE,
+    FIELD_CREDENTIAL_TYPE_ID,
+    FIELD_CREDENTIAL_INDEX,
+    FIELD_ERROR,
+    FIELD_ERROR_ID,
+)
 
 def _enum_name(value: Enum) -> str:
     """Convert a Matter enum into a Home Assistant event value."""
@@ -20,33 +45,69 @@ def serialize_operation(
 ) -> dict[str, Any]:
     """Convert a LockOperation into a Home Assistant event payload."""
 
+    payload = _serialize_common_operation(operation)
+
+    payload.update(
+        {
+            FIELD_ENTITY_ID: entity_id,
+            FIELD_USER_NAME: (
+                user["user_name"] 
+                if user is not None 
+                else None
+            )
+        }
+    )
+    return payload
+
+def serialize_operation_error(
+    operation: LockOperationError,
+    entity_id: str | None = None,
+    user: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Convert a LockOperationError into a Home Assistant event payload."""
+
+    payload = _serialize_common_operation(operation)
+
+    payload.update(
+        {
+            FIELD_ENTITY_ID: entity_id,
+            FIELD_USER_NAME: user["user_name"] if user else None,
+            FIELD_ERROR: _enum_name(operation.operation_error),
+            FIELD_ERROR_ID: int(operation.operation_error),
+        }
+    )
+
+    return payload
+
+def _serialize_common_operation(
+    operation,
+) -> dict[str, Any]:
+    """Return the base of all the operations handled"""
+
     return {
-        "api_version": 1,
-        
-        "node_id": operation.node_id,
-        "endpoint_id": operation.endpoint_id,
+        FIELD_API_VERSION: API_VERSION,
 
-        "entity_id": entity_id,
+        FIELD_NODE_ID: operation.node_id,
+        FIELD_ENDPOINT_ID: operation.endpoint_id,
 
-        "operation": _enum_name(operation.operation_type),
-        "operation_id": int(operation.operation_type),
+        FIELD_OPERATION: _enum_name(operation.operation_type),
+        FIELD_OPERATION_ID: int(operation.operation_type),
 
-        "source": _enum_name(operation.operation_source),
-        "source_id": int(operation.operation_source),
+        FIELD_SOURCE: _enum_name(operation.operation_source),
+        FIELD_SOURCE_ID: int(operation.operation_source),
 
-        "user_index": operation.user_index,
-        "user_name": user["user_name"] if user else None,
+        FIELD_USER_INDEX: operation.user_index,
 
-        "fabric_index": operation.fabric_index,
+        FIELD_FABRIC_INDEX: operation.fabric_index,
 
-        "source_node": operation.source_node,
+        FIELD_SOURCE_NODE: operation.source_node,
 
-        "credentials": [
-            {
-                "credential_type": _enum_name(credential.credential_type),
-                "credential_type_id": int(credential.credential_type),
-                "credential_index": credential.credential_index,
-            }
-            for credential in operation.credentials
-        ],
+        FIELD_CREDENTIALS: [
+                    {
+                        FIELD_CREDENTIAL_TYPE: _enum_name(credential.credential_type),
+                        FIELD_CREDENTIAL_TYPE_ID: int(credential.credential_type),
+                        FIELD_CREDENTIAL_INDEX: credential.credential_index,
+                    }
+                    for credential in operation.credentials
+                ],
     }

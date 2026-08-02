@@ -6,6 +6,7 @@ from matter_server.common.models import MatterNodeEvent
 
 from custom_components.matter_lock_events.translator import (
     translate_door_lock_operation,
+    translate_lock_operation_error,
 )
 
 from tests.fixtures.schlage_sense_pro_events import (
@@ -13,6 +14,7 @@ from tests.fixtures.schlage_sense_pro_events import (
     REMOTE_UNLOCK,
     KEYPAD_UNLOCK,
     MANUAL_THUMBTURN_LOCK,
+    WRONG_PIN,
 )
 
 def test_translate_remote_unlock() -> None:
@@ -129,6 +131,36 @@ def test_translate_manual_thumbturn_lock() -> None:
     assert operation.endpoint_id == 1
     assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
     assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kManual
+    assert operation.user_index is None
+    assert operation.fabric_index is None
+    assert operation.source_node is None
+    assert operation.credentials == ()
+
+def test_translate_lock_operation_error() -> None:
+    """Translate a lock error."""
+
+    event = dataclass_from_dict(
+        MatterNodeEvent,
+        {
+            "node_id": 23,
+            "endpoint_id": 1,
+            "cluster_id": clusters.DoorLock.id,
+            "event_id": clusters.DoorLock.Events.LockOperationError.event_id,
+            "event_number": 1,
+            "priority": 1,
+            "timestamp": 0,
+            "data": WRONG_PIN,
+        },
+    )
+
+    operation = translate_lock_operation_error(event)
+
+    assert operation is not None
+    assert operation.node_id == 23
+    assert operation.endpoint_id == 1
+    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
+    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kKeypad
+    assert operation.operation_error == clusters.DoorLock.Enums.OperationErrorEnum.kInvalidCredential
     assert operation.user_index is None
     assert operation.fabric_index is None
     assert operation.source_node is None

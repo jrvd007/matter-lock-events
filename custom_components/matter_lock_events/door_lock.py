@@ -31,3 +31,21 @@ class LockOperation:
     source_node: int | None
 
     credentials: tuple[LockCredential, ...]
+
+@dataclass(slots=True)
+class LockOperationError:
+    """Represents a failed lock operation."""
+
+    node_id: int
+    endpoint_id: int
+
+    operation_type: clusters.DoorLock.Enums.LockOperationTypeEnum
+    operation_source: clusters.DoorLock.Enums.OperationSourceEnum
+    operation_error: clusters.DoorLock.Enums.OperationErrorEnum
+
+    user_index: int | None
+
+    fabric_index: int | None
+    source_node: int | None
+
+    credentials: tuple[LockCredential, ...]

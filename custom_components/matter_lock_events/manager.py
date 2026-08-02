@@ -9,10 +9,24 @@ from typing import TYPE_CHECKING, Any
 from chip.clusters import Objects as clusters
 from matter_server.common.models import EventType, MatterNodeEvent
 
-from .const import EVENT_OPERATION, NAME, __version__
-from .door_lock import LockOperation
-from .event_adapter import serialize_operation
-from .translator import translate_door_lock_operation
+from .const import (
+    EVENT_OPERATION, 
+    EVENT_OPERATION_ERROR,
+    NAME, 
+    __version__,
+)
+from .door_lock import (
+    LockOperation,
+    LockOperationError,
+)
+from .event_adapter import (
+    serialize_operation,
+    serialize_operation_error,
+)
+from .translator import (
+    translate_door_lock_operation,
+    translate_lock_operation_error,
+)
 from .entity_resolver import resolve_entity_id
 from .lock_user_resolver import resolve_lock_user
 
@@ -67,6 +81,7 @@ class MatterLockEventsManager:
         _LOGGER.warning("Matter node event subscription established.")
 
 
+
     async def async_shutdown(self) -> None:
         """Shutdown the manager."""
 
@@ -75,7 +90,12 @@ class MatterLockEventsManager:
             self._unsubscribe()
             self._unsubscribe = None
 
-    def _fire_operation(self, operation: LockOperation, entity_id: str | None, user: dict[str, Any] | None = None,) -> None:
+    def _fire_operation(
+        self, 
+        operation: LockOperation, 
+        entity_id: str | None, 
+        user: dict[str, Any] | None = None,
+    ) -> None:
         """Fire a Home Assistant event for a lock operation."""
         event_data = serialize_operation(
             operation,
@@ -90,6 +110,26 @@ class MatterLockEventsManager:
 
         _LOGGER.debug("Published Home Assistant event: %s", EVENT_OPERATION)
 
+    def _fire_operation_error(
+        self, 
+        operation: LockOperationError, 
+        entity_id: str | None, 
+        user: dict[str, Any] | None = None,
+    ) -> None:
+        """Fire a Home Assistant event for a lock operation error."""
+        event_data = serialize_operation_error(
+            operation,
+            entity_id=entity_id,
+            user=user,
+        )
+    
+        self.hass.bus.async_fire(
+            EVENT_OPERATION_ERROR,
+            event_data,
+        )
+    
+        _LOGGER.debug("Published Home Assistant event: %s", EVENT_OPERATION_ERROR)
+
     def _handle_node_event(
         self,
         event_type: EventType,
@@ -100,17 +140,29 @@ class MatterLockEventsManager:
         if event.cluster_id != clusters.DoorLock.id:
             return
 
-        if event.event_id != clusters.DoorLock.Events.LockOperation.event_id:
+
+        if event.event_id == clusters.DoorLock.Events.LockOperation.event_id:
+            operation = translate_door_lock_operation(event)
+
+            if operation is None:
+                return
+
+            self.hass.async_create_task(
+                self._async_handle_lock_operation(operation)
+            )
             return
 
-        operation = translate_door_lock_operation(event)
+        elif event.event_id == clusters.DoorLock.Events.LockOperationError.event_id:
+            operation = translate_lock_operation_error(event)
 
-        if operation is None:
+            if operation is None:
+                return
+
+            self.hass.async_create_task(
+                self._async_handle_lock_operation_error(operation)
+            )
             return
 
-        self.hass.async_create_task(
-            self._async_handle_lock_operation(operation)
-        )
         
     async def _async_handle_lock_operation(
         self,
@@ -140,3 +192,32 @@ class MatterLockEventsManager:
             entity_id,
             user=user,
         )
+
+    async def _async_handle_lock_operation_error(
+            self,
+            operation: LockOperationError,
+        ) -> None:
+            """Resolve additional information and fire the HA event for an error."""
+    
+            entity_id = resolve_entity_id(
+                self.hass,
+                self._server_info,
+                self._matter_client,
+                operation.node_id,
+                operation.endpoint_id,
+            )
+    
+            user = await resolve_lock_user(
+                self.hass,
+                self._server_info,
+                self._matter_client,
+                operation.node_id,
+                operation.endpoint_id,
+                operation.user_index,
+            )
+    
+            self._fire_operation_error(
+                operation,
+                entity_id,
+                user=user,
+            )

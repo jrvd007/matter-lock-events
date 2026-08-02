@@ -5,8 +5,12 @@ from chip.clusters import Objects as clusters
 from custom_components.matter_lock_events.door_lock import (
     LockCredential,
     LockOperation,
+    LockOperationError,
 )
-from custom_components.matter_lock_events.event_adapter import serialize_operation
+from custom_components.matter_lock_events.event_adapter import (
+    serialize_operation,
+    serialize_operation_error,
+)
 
 
 def test_serialize_unlock_remote() -> None:
@@ -161,6 +165,45 @@ def test_serialize_lock_manual() -> None:
         "operation_id": 0,
         "source": "manual",
         "source_id": 1,
+        "user_index": None,
+        "user_name": None,
+        "fabric_index": None,
+        "source_node": None,
+        "credentials": [],
+    }
+
+def test_serialize_operation_error() -> None:
+    """Serialize a keypad unlock operation."""
+
+    operation = LockOperationError(
+        node_id=23,
+        endpoint_id=1,
+        operation_type=clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock,
+        operation_source=clusters.DoorLock.Enums.OperationSourceEnum.kKeypad,
+        operation_error=clusters.DoorLock.Enums.OperationErrorEnum.kInvalidCredential,
+        user_index=None,
+        fabric_index=None,
+        source_node=None,
+        credentials=(),
+    )
+
+    payload = serialize_operation_error(
+        operation,
+        entity_id="lock.sense_pro",
+        user=None,
+    )
+
+    assert payload == {
+        "api_version": 1,
+        "node_id": 23,
+        "endpoint_id": 1,
+        "error": "invalidcredential",
+        "error_id": 1,
+        "entity_id": "lock.sense_pro",
+        "operation": "unlock",
+        "operation_id": 1,
+        "source": "keypad",
+        "source_id": 3,
         "user_index": None,
         "user_name": None,
         "fabric_index": None,

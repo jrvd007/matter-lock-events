@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.components.matter.lock_helpers import get_lock_users
-
 if TYPE_CHECKING:
     from matter_server.client.models.node import MatterNode
     from matter_server.common.models import ServerInfoMessage
@@ -49,6 +47,7 @@ async def resolve_lock_user(
         return None
 
     try:
+        from homeassistant.components.matter.lock_helpers import get_lock_users
         users = await get_lock_users(
             matter_client,
             node,

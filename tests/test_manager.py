@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 from chip.clusters import Objects as clusters
 
-from custom_components.matter_lock_events.const import EVENT_OPERATION
+from custom_components.matter_lock_events.const import EVENT_OPERATION, EVENT_OPERATION_ERROR
 from custom_components.matter_lock_events.manager import MatterLockEventsManager
 
 import asyncio
@@ -94,7 +94,7 @@ def test_handle_node_event_fires_home_assistant_event(
         1,
         1,
     )
-    
+
     serialize_mock.assert_called_once_with(
         fake_operation,
         entity_id=fake_entity_id,
@@ -106,6 +106,70 @@ def test_handle_node_event_fires_home_assistant_event(
 
     hass.bus.async_fire.assert_called_once_with(
         EVENT_OPERATION,
+        fake_payload,
+    )
+
+def test_handle_node_event_error_fires_home_assistant_event(
+    monkeypatch,
+) -> None:
+    """Manager publishes the serialized Home Assistant event."""
+
+    hass = FakeHass()
+    manager = MatterLockEventsManager(hass)
+    manager._server_info = Mock()
+    manager._matter_client = Mock()
+
+    fake_operation = SimpleNamespace(
+        node_id=23,
+        endpoint_id=1,
+        user_index=None,
+    )
+
+    fake_entity_id = "lock.sense_pro"
+
+    fake_payload = {
+        "operation": "unlock",
+        "source": "keypad",
+        "entity_id": fake_entity_id,
+        "error": "invalidcredential",
+        "error_id": 1,
+    }
+
+    monkeypatch.setattr(
+        "custom_components.matter_lock_events.manager.translate_lock_operation_error",
+        lambda event: fake_operation,
+    )
+    monkeypatch.setattr(
+       "custom_components.matter_lock_events.manager.resolve_entity_id",
+        lambda *args, **kwargs: fake_entity_id,
+    )
+  
+
+    serialize_mock = Mock(return_value=fake_payload)
+
+    monkeypatch.setattr(
+        "custom_components.matter_lock_events.manager.serialize_operation_error",
+        serialize_mock,
+    )
+
+    event = SimpleNamespace(
+        cluster_id=clusters.DoorLock.id,
+        event_id=clusters.DoorLock.Events.LockOperationError.event_id,
+        node_id=23,
+        endpoint_id=1,
+        data={},
+    )
+
+    manager._handle_node_event(SimpleNamespace(), event)
+ 
+    serialize_mock.assert_called_once_with(
+        fake_operation,
+        entity_id=fake_entity_id,
+        user=None,
+    )
+
+    hass.bus.async_fire.assert_called_once_with(
+        EVENT_OPERATION_ERROR,
         fake_payload,
     )
 
