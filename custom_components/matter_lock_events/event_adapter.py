@@ -9,6 +9,7 @@ from enum import Enum
 from .door_lock import (
     LockOperation, 
     LockOperationError,
+    DoorLockAlarm,
 )
 
 from .const import (
@@ -31,12 +32,17 @@ from .const import (
     FIELD_CREDENTIAL_INDEX,
     FIELD_ERROR,
     FIELD_ERROR_ID,
+    FIELD_ALARM,
+    FIELD_ALARM_ID,
 )
+
+import re
 
 def _enum_name(value: Enum) -> str:
     """Convert a Matter enum into a Home Assistant event value."""
 
-    return value.name.removeprefix("k").lower()
+    name = value.name.removeprefix("k")
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
     
 def serialize_operation(
     operation: LockOperation,
@@ -78,6 +84,24 @@ def serialize_operation_error(
     )
 
     return payload
+
+def serialize_alarm(
+    operation: DoorLockAlarm,
+    entity_id: str | None = None,
+) -> dict[str, Any]:
+    """Convert a DoorLockAlarm into a Home Assistant event payload."""
+
+    return {
+        FIELD_API_VERSION: API_VERSION,
+        
+        FIELD_NODE_ID: operation.node_id,
+        FIELD_ENDPOINT_ID: operation.endpoint_id,
+
+        FIELD_ENTITY_ID: entity_id,
+
+        FIELD_ALARM: _enum_name(operation.alarm_code),
+        FIELD_ALARM_ID: int(operation.alarm_code),
+    }
 
 def _serialize_common_operation(
     operation,

@@ -6,10 +6,12 @@ from custom_components.matter_lock_events.door_lock import (
     LockCredential,
     LockOperation,
     LockOperationError,
+    DoorLockAlarm,
 )
 from custom_components.matter_lock_events.event_adapter import (
     serialize_operation,
     serialize_operation_error,
+    serialize_alarm,
 )
 
 
@@ -197,7 +199,7 @@ def test_serialize_operation_error() -> None:
         "api_version": 1,
         "node_id": 23,
         "endpoint_id": 1,
-        "error": "invalidcredential",
+        "error": "invalid_credential",
         "error_id": 1,
         "entity_id": "lock.sense_pro",
         "operation": "unlock",
@@ -209,4 +211,27 @@ def test_serialize_operation_error() -> None:
         "fabric_index": None,
         "source_node": None,
         "credentials": [],
+    }
+
+def test_serialize_alarm() -> None:
+    """Serialize a keypad unlock operation."""
+
+    operation = DoorLockAlarm(
+        node_id=23,
+        endpoint_id=1,
+        alarm_code = clusters.DoorLock.Enums.AlarmCodeEnum.kLockJammed,
+    )
+
+    payload = serialize_alarm(
+        operation,
+        entity_id="lock.sense_pro",
+    )
+
+    assert payload == {
+        "api_version": 1,
+        "node_id": 23,
+        "endpoint_id": 1,
+        "entity_id": "lock.sense_pro",
+        "alarm": "lock_jammed",
+        "alarm_id": 0,
     }

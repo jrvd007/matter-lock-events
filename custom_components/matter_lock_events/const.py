@@ -16,7 +16,7 @@ EVENT_ALARM = "matter_lock_events.alarm"
 # Matter entity description key used by the Home Assistant Matter integration.
 MATTER_LOCK_ENTITY_KEY = "MatterLock"
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # -----------------------------------------------------------------------------
 # MatterNodeEvent.data transport keys
@@ -25,6 +25,7 @@ __version__ = "0.2.0"
 DATA_LOCK_OPERATION_TYPE = "lockOperationType"
 DATA_OPERATION_SOURCE = "operationSource"
 DATA_OPERATION_ERROR = "operationError"
+DATA_ALARM_CODE = "alarmCode"
 DATA_USER_INDEX = "userIndex"
 DATA_FABRIC_INDEX = "fabricIndex"
 DATA_SOURCE_NODE = "sourceNode"

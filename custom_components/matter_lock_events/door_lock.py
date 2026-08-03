@@ -49,3 +49,11 @@ class LockOperationError:
     source_node: int | None
 
     credentials: tuple[LockCredential, ...]
+
+@dataclass(slots=True)
+class DoorLockAlarm:
+    """Represents a Matter DoorLockAlarm event."""
+
+    node_id: int
+    endpoint_id: int
+    alarm_code: clusters.DoorLock.Enums.AlarmCodeEnum

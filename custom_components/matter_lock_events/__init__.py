@@ -31,14 +31,14 @@ async def async_setup_entry(
     from .models import MatterLockEventsData
 
     _LOGGER.info("%s %s", NAME, __version__)
-    _LOGGER.warning("Initializing integration...")
+    _LOGGER.info("Initializing integration...")
 
     manager = MatterLockEventsManager(hass)
     await manager.async_initialize()
 
     entry.runtime_data = MatterLockEventsData(manager=manager)
 
-    _LOGGER.warning("Initialization complete.")
+    _LOGGER.info("Initialization complete.")
     return True
 
 
@@ -48,5 +48,5 @@ async def async_unload_entry(
 ) -> bool:
     """Unload the config entry."""
     await entry.runtime_data.manager.async_shutdown()
-    _LOGGER.warning("Integration unloaded.")
+    _LOGGER.info("Integration unloaded.")
     return True

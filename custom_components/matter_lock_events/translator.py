@@ -18,6 +18,7 @@ from .door_lock import (
     LockCredential,
     LockOperation,
     LockOperationError,
+    DoorLockAlarm,
 )
 
 from .const import (
@@ -28,6 +29,7 @@ from .const import (
     DATA_LOCK_OPERATION_TYPE,
     DATA_OPERATION_SOURCE,
     DATA_OPERATION_ERROR,
+    DATA_ALARM_CODE,
     DATA_SOURCE_NODE,
     DATA_USER_INDEX,
 )
@@ -159,4 +161,20 @@ def translate_lock_operation_error(
         source_node=data.get(DATA_SOURCE_NODE),
 
         credentials=tuple(credentials),
+    )
+
+def translate_door_lock_alarm(
+    event: MatterNodeEvent,
+) -> DoorLockAlarm | None:
+    """Translate a Matter DoorLockAlarm event."""
+
+    data = event.data or {}
+
+    return DoorLockAlarm(
+        node_id=event.node_id,
+        endpoint_id=event.endpoint_id,
+
+        alarm_code=clusters.DoorLock.Enums.AlarmCodeEnum(
+            data[DATA_ALARM_CODE]
+        ),
     )

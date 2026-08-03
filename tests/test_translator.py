@@ -7,6 +7,7 @@ from matter_server.common.models import MatterNodeEvent
 from custom_components.matter_lock_events.translator import (
     translate_door_lock_operation,
     translate_lock_operation_error,
+    translate_door_lock_alarm,
 )
 
 from tests.fixtures.schlage_sense_pro_events import (
@@ -165,3 +166,25 @@ def test_translate_lock_operation_error() -> None:
     assert operation.fabric_index is None
     assert operation.source_node is None
     assert operation.credentials == ()
+
+def test_translate_door_lock_alarm() -> None:
+    """Translate a lock alarm."""
+
+    event = dataclass_from_dict(
+        MatterNodeEvent,
+        {
+            "node_id": 23,
+            "endpoint_id": 1,
+            "event_id": clusters.DoorLock.Events.DoorLockAlarm.event_id,
+            "data": {
+                "alarmCode": 0,
+            }
+        },
+    )
+
+    alarm = translate_door_lock_alarm(event)
+
+    assert alarm is not None
+    assert alarm.node_id == 23
+    assert alarm.endpoint_id == 1
+    assert alarm.alarm_code == 0
