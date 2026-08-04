@@ -5,7 +5,7 @@
   "documentation": "https://github.com/jrvd007/matter-lock-events/blob/main/README.md",
   "issue_tracker": "https://github.com/jrvd007/matter-lock-events/issues",
   "loggers": "custom_components.matter_lock_events",
-  "config_flow": false,
+  "config_flow": true,
   "dependencies": ["matter"],
   "codeowners": ["@jrvd007"],
   "requirements": [],
