@@ -19,10 +19,6 @@ Matter Lock Events works alongside the official Matter integration and provides 
 
 The integration currently publishes the following Home Assistant events:
 
-### Supported Matter Events
-
-The integration currently publishes the following Home Assistant events:
-
 | Event | Description |
 | :--- | :--- |
 | `matter_lock_operation` | Successful lock and unlock operations |
