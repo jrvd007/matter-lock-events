@@ -25,7 +25,7 @@ Matter Lock Events uses Home Assistant Config Entries as its integration lifecyc
 
 The integration does not use YAML configuration.
 
-No runtime configuration is required from the user.
+The integration uses a minimal Config Flow solely to create a Config Entry. No runtime configuration is requested from the user because the integration automatically discovers and attaches to the existing Matter integration.
 
 The integration initializes itself from the existing Matter integration and stores its runtime state using `ConfigEntry.runtime_data`.
 

@@ -28,8 +28,9 @@ The integration currently publishes the following Home Assistant events:
 
 ## Event Examples
 
-**matter_lock_events.operation**
+### `matter_lock_events.operation`
 
+```yaml
 api_version: 1
 entity_id: lock.front_door
 node_id: 23
@@ -40,10 +41,11 @@ source: keypad
 user:
   user_index: 1
   user_name: John
+```
 
+### `matter_lock_events.operation_error`
 
-**matter_lock_events.operation_error**
-
+```yaml
 api_version: 1
 entity_id: lock.front_door
 node_id: 23
@@ -53,16 +55,18 @@ source: keypad
 
 error: invalid_credential
 error_id: 1
+```
 
+### `matter_lock_events.alarm`
 
-**matter_lock_events.alarm**
-
+```yaml
 api_version: 1
 entity_id: lock.front_door
 node_id: 23
 
 alarm: lock_jammed
 alarm_id: 4
+```
 
 ## Installation
 ### HACS (Recommended)
@@ -76,8 +80,12 @@ alarm_id: 4
   **Category:**
   Integration
 
-6. Install Matter Lock Events.
+6. Download Matter Lock Events.
 7. Restart Home Assistant.
+8. Go to **Settings → Devices & Services**.
+9. Click **Add Integration**.
+10. Search for **Matter Lock Events**.
+11. Click **Submit**.
 
 ### Manual Installation
 1. Download this repository.
