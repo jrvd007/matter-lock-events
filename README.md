@@ -5,15 +5,15 @@ A Home Assistant custom integration that exposes Matter Door Lock events as Home
 Matter Lock Events works alongside the official Matter integration and provides additional event information that is not currently exposed by Home Assistant, including lock user names, operation sources, lock errors, and lock alarms.
 
 ## Features
-✅ Lock and unlock events
-✅ Lock operation error events
-✅ Door lock alarm events
-✅ Resolves the Home Assistant lock entity automatically
-✅ Resolves Matter user indexes to user names
-✅ Preserves Matter enum IDs for advanced automations
-✅ Lightweight implementation with no polling
-✅ Fully tested with pytest
-✅ HACS compatible
+✅ Lock and unlock events  
+✅ Lock operation error events  
+✅ Door lock alarm events  
+✅ Resolves the Home Assistant lock entity automatically  
+✅ Resolves Matter user indexes to user names  
+✅ Preserves Matter enum IDs for advanced automations  
+✅ Lightweight implementation with no polling  
+✅ Fully tested with pytest  
+✅ HACS compatible  
 
 ## Supported Matter Events
 
