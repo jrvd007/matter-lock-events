@@ -1,33 +1,40 @@
-# ADR-0005: Expose Door Lock operations through a single Home Assistant event
+# ADR-0005: Expose Matter Door Lock events through dedicated Home Assistant events
 
-- Status: Accepted
-- Date: 2026-07-24
+* **Status:** Accepted
+* **Date:** 2026-07-24
+* **Updated:** 2026-08-03
 
 ## Context
 
-The integration needs to expose Matter Door Lock operations to Home Assistant
-automations while maintaining compatibility with future Matter revisions.
+The integration exposes Matter Door Lock events to Home Assistant so they can be used in automations.
+
+Initially, the integration considered publishing all Door Lock events through a single Home Assistant event with an event-type field in the payload.
+
+As support expanded beyond successful lock operations to include operation errors and lock alarms, these events were found to represent distinct concepts with different automation use cases.
 
 ## Decision
 
-The integration shall publish a single Home Assistant event named
+The integration publishes one Home Assistant event for each Matter Door Lock event category:
 
-matter_lock_events.operation
+* `matter_lock_events.operation`
+* `matter_lock_events.operation_error`
+* `matter_lock_events.alarm`
 
-All operation-specific information is carried within the event payload.
+Each event publishes only the fields relevant to that event type while preserving both the human-readable Matter enum names and their corresponding numeric identifiers.
 
-The payload preserves Matter semantics while exposing human-readable values and
-their corresponding numeric identifiers.
+Common fields, such as `api_version`, `node_id`, and `entity_id`, remain consistent across all event types.
 
 ## Consequences
 
-Positive
+### Positive
 
-- Stable event API.
-- Extensible payload.
-- One automation trigger for all Door Lock operations.
-- Payload remains compatible with future Matter extensions.
+* Event names clearly communicate the type of activity that occurred.
+* Automations can subscribe directly to the event of interest without additional filtering.
+* Payloads remain focused and contain only relevant fields.
+* The design closely follows the Matter Door Lock event model.
+* Additional Matter Door Lock events can be added in the future without changing existing event schemas.
 
-Negative
+### Negative
 
-- Consumers filter on event data rather than event type.
+* Consumers interested in every Door Lock event must subscribe to multiple Home Assistant events instead of a single event.
+* Some common payload fields are repeated across event types.

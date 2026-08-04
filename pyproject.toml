@@ -15,3 +15,6 @@ select = [
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["custom_components"]

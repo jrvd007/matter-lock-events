@@ -1,3 +1,4 @@
 -r requirements-runtime.txt
 
+homeassistant
 pytest>=8

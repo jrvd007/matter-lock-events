@@ -1,77 +1,156 @@
 # Matter Lock Events
 
-A Home Assistant custom integration that exposes Matter Door Lock operation events for automations.
+A Home Assistant custom integration that exposes Matter Door Lock events as Home Assistant events, making it easy to build automations based on lock activity.
 
-The project is being developed incrementally, with each commit representing a small, independently testable milestone.
+Matter Lock Events works alongside the official Matter integration and provides additional event information that is not currently exposed by Home Assistant, including lock user names, operation sources, lock errors, and lock alarms.
 
-## Home Assistant Events
+## Features
+✅ Lock and unlock events
+✅ Lock operation error events
+✅ Door lock alarm events
+✅ Resolves the Home Assistant lock entity automatically
+✅ Resolves Matter user indexes to user names
+✅ Preserves Matter enum IDs for advanced automations
+✅ Lightweight implementation with no polling
+✅ Fully tested with pytest
+✅ HACS compatible
 
-The integration publishes Matter Door Lock operations through the Home Assistant
-event bus.
+## Supported Matter Events
 
-Event type:
+The integration currently publishes the following Home Assistant events:
 
-matter_lock_events.operation
+**Event**                     **Description**
+matter_lock_operation	        Successful lock and unlock operations
+matter_lock_operation_error 	Failed lock operations (wrong PIN, invalid credential, etc.)
+matter_lock_alarm	            Door lock alarms (lock jammed, wrong code entry limit, etc.)
 
-See `docs/events.md` for the complete event schema.
+## Event Examples
 
-## Goals
+**matter_lock_events.operation**
 
-- Expose Matter Door Lock Operation events
-- Include user index
-- Include operation source
-- Map user IDs to names
-- Create sensors for last user and operation
-- Be fully compatible with HACS
+api_version: 1
+entity_id: lock.front_door
+node_id: 23
 
-## Project Status
+operation: unlock
+source: keypad
 
-Matter Lock Events is currently under active development.
+user:
+  user_index: 1
+  user_name: John
 
-### Roadmap
 
-- ✅ Project framework
-- ✅ Runtime abstraction
-- ⏳ Matter event subscription
-- ⏳ LockOperation event decoding
-- ⏳ Home Assistant event generation
-- ⏳ User index extraction
-- ⏳ User name mapping
-- ⏳ HACS release
+**matter_lock_events.operation_error**
+
+api_version: 1
+entity_id: lock.front_door
+node_id: 23
+
+operation: unlock
+source: keypad
+
+error: invalid_credential
+error_id: 1
+
+
+**matter_lock_events.alarm**
+
+api_version: 1
+entity_id: lock.front_door
+node_id: 23
+
+alarm: lock_jammed
+alarm_id: 4
+
+## Installation
+### HACS (Recommended)
+1. Open HACS.
+2. Go to Integrations.
+3. Open the ⋮ menu.
+4. Select Custom repositories.
+5. Add:
+    https://github.com/jrvd007/matter-lock-events
+
+  **Category:**
+  Integration
+
+6. Install Matter Lock Events.
+7. Restart Home Assistant.
+
+### Manual Installation
+1. Download this repository.
+2. Copy the matter_lock_events folder into:
+  config/custom_components/
+3. Restart Home Assistant.
+4. Add the integration from Settings → Devices & Services.
+
+## Example Automation
+
+**Notify when the front door fails to lock because it is jammed:**
+
+alias: Notify Lock Jam
+
+trigger:
+  - platform: event
+    event_type: matter_lock_events.alarm
+
+condition:
+  - condition: template
+    value_template: >
+      {{ trigger.event.data.alarm == "lock_jammed" }}
+
+action:
+  - service: notify.mobile_app_phone
+    data:
+      message: The front door failed to lock because it is jammed.
+
+## Requirements
+- Home Assistant
+- Official Matter integration
+- A Matter-compatible door lock
 
 ## Development
 
-### Create a virtual environment
+**Create a virtual environment:**
 
 ```bash
 python -m venv .venv
 ```
 
-### Activate
-Windows:
+**Activate it:**
+
+**Windows**
+
 ```bash
 .venv\Scripts\activate
 ```
 
-Linux/macOS:
+**Linux / macOS**
+
 ```bash
 source .venv/bin/activate
 ```
 
-### Install Development Dependencies
+**Install development dependencies:**
+
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-### Run Tests
+**Run the full test suite:**
+
 ```bash
 pytest
 ```
 
-### Run a single test file
+**Run an individual test file:**
 
 ```bash
 pytest tests/test_translator.py
 pytest tests/test_event_adapter.py
 pytest tests/test_manager.py
 ```
+
+## License
+
+This project is released under the MIT License.

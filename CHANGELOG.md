@@ -62,3 +62,27 @@
 ### Fixed
 - Prevented import-time Home Assistant dependencies from blocking local unit tests.
 - Improved testability by making the integration package import-light.
+
+## v1.0.0
+### Added
+- Lock operation events (matter_lock_events.operation).
+- Lock operation error events (matter_lock_events.operation_error).
+- Door lock alarm events (matter_lock_events.alarm).
+- Automatic resolution of Matter user indexes to lock user names.
+- Automatic resolution of Home Assistant lock entity IDs.
+- Support for Matter Door Lock LockOperation, LockOperationError, and DoorLockAlarm events.
+- Alarm serialization with both human-readable names and raw Matter enum values.
+- Comprehensive unit tests covering translators, serializers, manager orchestration, and user resolution.
+- HACS compatibility.
+
+### Changed
+- Refactored manager orchestration to support multiple Matter Door Lock event types.
+- Centralized event field names, payload keys, and API constants in const.py.
+- Improved serializer consistency across all published events.
+- Standardized payload structure with api_version included in every event.
+- Simplified lock user resolution by querying the Matter lock directly instead of maintaining a local cache.
+
+### Fixed
+- Correctly resolve Matter lock user names for keypad operations.
+- Improved compatibility with local pytest execution outside Home Assistant.
+- Various internal refactoring and cleanup to improve maintainability and testability.

@@ -6,7 +6,7 @@
 
 ## Context
 
-Matter Lock Events requires access to Home Assistant's existing Matter runtime in order to receive Door Lock events.
+Matter Lock Events needs access to Home Assistant's existing Matter runtime in order to subscribe to Matter Door Lock events.
 
 Several approaches were considered.
 
@@ -28,17 +28,17 @@ Open a second websocket connection directly to the Matter Server.
 
 ## Decision
 
-Matter Lock Events retrieves the loaded Matter Config Entry through Home Assistant's public Config Entry API.
+Matter Lock Events retrieves the loaded Matter Config Entry using Home Assistant's Config Entry API.
 
-The running `MatterAdapter` is obtained from:
+The running Matter client is obtained from the integration's runtime data:
 
 ```python
-entry.runtime_data.adapter
+matter_entry.runtime_data.adapter.matter_client
 ```
 
-All interaction with Home Assistant's Matter integration is encapsulated in `matter_runtime.py`.
+The `MatterLockEventsManager` is responsible for acquiring the Matter client during initialization and subscribing to Matter node events.
 
-No other module should directly depend on the Matter integration.
+No additional abstraction layer is introduced between the manager and Home Assistant's Matter integration.
 
 ## Rationale
 
@@ -46,33 +46,38 @@ This approach:
 
 - Reuses Home Assistant's existing Matter client.
 - Avoids creating a second websocket connection.
-- Minimizes coupling to Matter's internal helper modules.
-- Follows Home Assistant's runtime architecture.
-- Keeps Matter-specific logic isolated.
+- Uses Home Assistant's supported runtime architecture.
+- Keeps the integration simple by avoiding unnecessary wrapper layers.
+- Makes the manager the single owner of Matter event subscriptions.
 
 ## Consequences
 
 ### Advantages
 
 - Single Matter client.
-- Easy to maintain.
-- Small public interface.
-- Easy to unit test.
-- Future Matter changes are isolated to one module.
+- No duplicated websocket connections.
+- Minimal architecture.
+- Easy to understand.
+- Easy to test.
+- Follows Home Assistant's Config Entry runtime model.
 
 ### Disadvantages
 
-- Depends on the runtime structure of the Matter integration.
-- May require updates if Home Assistant changes how Matter runtime data is exposed.
+- Depends on the runtime structure exposed by the Matter integration.
+- May require updates if Home Assistant changes how `runtime_data` is organized.
 
 ## Alternatives Rejected
 
 ### Import `get_matter()`
 
-Although simple, it introduces a dependency on an internal helper module.
+Rejected because it depends on an internal helper rather than the integration's public runtime state.
+
+### Additional runtime wrapper (`matter_runtime.py`)
+
+Rejected because it introduced an unnecessary abstraction without reducing coupling or simplifying the implementation.
 
 ### Second websocket connection
 
-Rejected because Home Assistant already maintains a Matter client and event listener.
+Rejected because Home Assistant already maintains a Matter client and event subscription.
 
-Duplicating this functionality would increase complexity and resource usage.
+Creating another connection would duplicate functionality, increase complexity, and consume additional resources.

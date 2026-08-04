@@ -2,7 +2,7 @@
 
 This directory contains the Architecture Decision Records (ADRs) for Matter Lock Events.
 
-An ADR documents a significant architectural decision that has a long-term impact on the project.
+An Architecture Decision Record (ADR) captures a significant architectural decision, the context in which it was made, and its long-term consequences for the project.
 
 ## Accepted ADRs
 
@@ -12,7 +12,13 @@ An ADR documents a significant architectural decision that has a long-term impac
 | ADR-0002 | Config Entries |
 | ADR-0003 | Domain Model Boundary |
 | ADR-0004 | Matter Server Transport Layer |
-| ADR-0005 | Single event for Door Lock |
+| ADR-0005 | Expose Matter Door Lock events through dedicated Home Assistant events |
+
+## ADR Lifecycle
+
+- **Proposed** — Under discussion.
+- **Accepted** — Adopted and implemented.
+- **Superseded** — Replaced by a newer ADR while retained for historical reference.
 
 ## ADR Format
 
@@ -23,4 +29,4 @@ Each ADR contains:
 - Decision
 - Consequences
 
-Only decisions with long-term architectural impact should receive an ADR.
+Not every code change requires an ADR. ADRs are reserved for decisions that have a lasting impact on the architecture, public API, or long-term direction of the project.

@@ -51,18 +51,12 @@ def serialize_operation(
 ) -> dict[str, Any]:
     """Convert a LockOperation into a Home Assistant event payload."""
 
-    payload = _serialize_common_operation(operation)
+    payload = _serialize_common_operation(operation, entity_id)
 
-    payload.update(
-        {
-            FIELD_ENTITY_ID: entity_id,
-            FIELD_USER_NAME: (
-                user["user_name"] 
-                if user is not None 
-                else None
-            )
-        }
+    payload[FIELD_USER_NAME] = (
+        user["user_name"] if user else None
     )
+
     return payload
 
 def serialize_operation_error(
@@ -72,11 +66,10 @@ def serialize_operation_error(
 ) -> dict[str, Any]:
     """Convert a LockOperationError into a Home Assistant event payload."""
 
-    payload = _serialize_common_operation(operation)
+    payload = _serialize_common_operation(operation, entity_id)
 
     payload.update(
         {
-            FIELD_ENTITY_ID: entity_id,
             FIELD_USER_NAME: user["user_name"] if user else None,
             FIELD_ERROR: _enum_name(operation.operation_error),
             FIELD_ERROR_ID: int(operation.operation_error),
@@ -91,47 +84,70 @@ def serialize_alarm(
 ) -> dict[str, Any]:
     """Convert a DoorLockAlarm into a Home Assistant event payload."""
 
+    payload = _base_payload(
+        operation.node_id,
+        operation.endpoint_id,
+        entity_id,
+    )
+
+    payload.update(
+        {
+            FIELD_ALARM: _enum_name(operation.alarm_code),
+            FIELD_ALARM_ID: int(operation.alarm_code),
+        }
+    )
+
+    return payload
+
+def _base_payload(
+    node_id: int,
+    endpoint_id: int,
+    entity_id: str | None,
+) -> dict[str, Any]:
+    """Return fields common to every published event."""
+
     return {
         FIELD_API_VERSION: API_VERSION,
-        
-        FIELD_NODE_ID: operation.node_id,
-        FIELD_ENDPOINT_ID: operation.endpoint_id,
-
+        FIELD_NODE_ID: node_id,
+        FIELD_ENDPOINT_ID: endpoint_id,
         FIELD_ENTITY_ID: entity_id,
-
-        FIELD_ALARM: _enum_name(operation.alarm_code),
-        FIELD_ALARM_ID: int(operation.alarm_code),
     }
 
 def _serialize_common_operation(
-    operation,
+    operation: LockOperation | LockOperationError,
+    entity_id: str | None,
 ) -> dict[str, Any]:
     """Return the base of all the operations handled"""
 
-    return {
-        FIELD_API_VERSION: API_VERSION,
+    payload = _base_payload(
+        operation.node_id,
+        operation.endpoint_id,
+        entity_id,
+    )
 
-        FIELD_NODE_ID: operation.node_id,
-        FIELD_ENDPOINT_ID: operation.endpoint_id,
+    payload.update(
+        {
+            FIELD_OPERATION: _enum_name(operation.operation_type),
+            FIELD_OPERATION_ID: int(operation.operation_type),
 
-        FIELD_OPERATION: _enum_name(operation.operation_type),
-        FIELD_OPERATION_ID: int(operation.operation_type),
+            FIELD_SOURCE: _enum_name(operation.operation_source),
+            FIELD_SOURCE_ID: int(operation.operation_source),
 
-        FIELD_SOURCE: _enum_name(operation.operation_source),
-        FIELD_SOURCE_ID: int(operation.operation_source),
+            FIELD_USER_INDEX: operation.user_index,
 
-        FIELD_USER_INDEX: operation.user_index,
+            FIELD_FABRIC_INDEX: operation.fabric_index,
 
-        FIELD_FABRIC_INDEX: operation.fabric_index,
+            FIELD_SOURCE_NODE: operation.source_node,
 
-        FIELD_SOURCE_NODE: operation.source_node,
+            FIELD_CREDENTIALS: [
+                {
+                    FIELD_CREDENTIAL_TYPE: _enum_name(credential.credential_type),
+                    FIELD_CREDENTIAL_TYPE_ID: int(credential.credential_type),
+                    FIELD_CREDENTIAL_INDEX: credential.credential_index,
+                }
+                for credential in operation.credentials
+            ],
+        }
+    )
 
-        FIELD_CREDENTIALS: [
-                    {
-                        FIELD_CREDENTIAL_TYPE: _enum_name(credential.credential_type),
-                        FIELD_CREDENTIAL_TYPE_ID: int(credential.credential_type),
-                        FIELD_CREDENTIAL_INDEX: credential.credential_index,
-                    }
-                    for credential in operation.credentials
-                ],
-    }
+    return payload

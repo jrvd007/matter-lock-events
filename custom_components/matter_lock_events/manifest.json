@@ -1,10 +1,10 @@
 {
   "domain": "matter_lock_events",
   "name": "Matter Lock Events",
-  "version": "0.2.0",
-  "config_flow": true,
-  "documentation": "https://github.com/jrvd007/matter-lock-events",
+  "version": "1.0.0",
+  "documentation": "https://github.com/jrvd007/matter-lock-events/blob/main/README.md",
   "issue_tracker": "https://github.com/jrvd007/matter-lock-events/issues",
+  "loggers": "custom_components.matter_lock_events",
   "dependencies": ["matter"],
   "codeowners": ["@jrvd007"],
   "requirements": [],
