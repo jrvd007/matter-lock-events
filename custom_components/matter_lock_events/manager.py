@@ -10,31 +10,29 @@ from chip.clusters import Objects as clusters
 from matter_server.common.models import EventType, MatterNodeEvent
 
 from .const import (
-    EVENT_OPERATION, 
-    EVENT_OPERATION_ERROR,
     EVENT_ALARM,
-    NAME, 
+    EVENT_OPERATION,
+    EVENT_OPERATION_ERROR,
+    NAME,
     __version__,
 )
 from .door_lock import (
+    DoorLockAlarm,
     LockOperation,
     LockOperationError,
-    DoorLockAlarm,
-)
-from .event_adapter import (
-    serialize_operation,
-    serialize_operation_error,
-    serialize_alarm,
-)
-from .translator import (
-    translate_door_lock_operation,
-    translate_lock_operation_error,
-    translate_door_lock_alarm,
 )
 from .entity_resolver import resolve_entity_id
+from .event_adapter import (
+    serialize_alarm,
+    serialize_operation,
+    serialize_operation_error,
+)
 from .lock_user_resolver import resolve_lock_user
-
-
+from .translator import (
+    translate_door_lock_alarm,
+    translate_door_lock_operation,
+    translate_lock_operation_error,
+)
 
 if TYPE_CHECKING:
     from homeassistant.components.matter.helpers import MatterConfigEntry
@@ -52,16 +50,14 @@ class MatterLockEventsManager:
         self._unsubscribe: Callable[[], None] | None = None
         self._matter_client = None
         self._server_info = None
-        
+
     async def async_initialize(self) -> None:
         """Initialize the manager."""
 
         _LOGGER.info("%s %s", NAME, __version__)
         _LOGGER.info("Searching for Matter integration...")
 
-        matter_entries = self.hass.config_entries.async_loaded_entries(
-            "matter"
-        )
+        matter_entries = self.hass.config_entries.async_loaded_entries("matter")
 
         if not matter_entries:
             raise RuntimeError("Matter integration is not loaded.")
@@ -84,8 +80,6 @@ class MatterLockEventsManager:
 
         _LOGGER.info("Matter node event subscription established.")
 
-
-
     async def async_shutdown(self) -> None:
         """Shutdown the manager."""
 
@@ -95,9 +89,9 @@ class MatterLockEventsManager:
             self._unsubscribe = None
 
     def _fire_operation(
-        self, 
-        operation: LockOperation, 
-        entity_id: str | None, 
+        self,
+        operation: LockOperation,
+        entity_id: str | None,
         user: dict[str, Any] | None = None,
     ) -> None:
         """Fire a Home Assistant event for a lock operation."""
@@ -115,9 +109,9 @@ class MatterLockEventsManager:
         _LOGGER.debug("Published Home Assistant event: %s", EVENT_OPERATION)
 
     def _fire_operation_error(
-        self, 
-        operation: LockOperationError, 
-        entity_id: str | None, 
+        self,
+        operation: LockOperationError,
+        entity_id: str | None,
         user: dict[str, Any] | None = None,
     ) -> None:
         """Fire a Home Assistant event for a lock operation error."""
@@ -126,30 +120,30 @@ class MatterLockEventsManager:
             entity_id=entity_id,
             user=user,
         )
-    
+
         self.hass.bus.async_fire(
             EVENT_OPERATION_ERROR,
             event_data,
         )
-    
+
         _LOGGER.debug("Published Home Assistant event: %s", EVENT_OPERATION_ERROR)
 
     def _fire_alarm(
-        self, 
-        operation: DoorLockAlarm, 
-        entity_id: str | None, 
+        self,
+        operation: DoorLockAlarm,
+        entity_id: str | None,
     ) -> None:
         """Fire a Home Assistant event for a door lock alarm."""
         event_data = serialize_alarm(
             operation,
             entity_id=entity_id,
         )
-        
+
         self.hass.bus.async_fire(
             EVENT_ALARM,
             event_data,
         )
-        
+
         _LOGGER.debug("Published Home Assistant event: %s", EVENT_ALARM)
 
     def _handle_node_event(
@@ -162,16 +156,13 @@ class MatterLockEventsManager:
         if event.cluster_id != clusters.DoorLock.id:
             return
 
-
         if event.event_id == clusters.DoorLock.Events.LockOperation.event_id:
             operation = translate_door_lock_operation(event)
 
             if operation is None:
                 return
 
-            self.hass.async_create_task(
-                self._async_handle_lock_operation(operation)
-            )
+            self.hass.async_create_task(self._async_handle_lock_operation(operation))
             return
 
         elif event.event_id == clusters.DoorLock.Events.LockOperationError.event_id:
@@ -191,12 +182,9 @@ class MatterLockEventsManager:
             if alarm is None:
                 return
 
-            self.hass.async_create_task(
-                self._async_handle_alarm(alarm)
-            )
+            self.hass.async_create_task(self._async_handle_alarm(alarm))
             return
 
-        
     async def _async_handle_lock_operation(
         self,
         operation: LockOperation,
@@ -227,37 +215,37 @@ class MatterLockEventsManager:
         )
 
     async def _async_handle_lock_operation_error(
-            self,
-            operation: LockOperationError,
-        ) -> None:
-            """Resolve additional information and fire the HA event for an error."""
-    
-            entity_id = resolve_entity_id(
-                self.hass,
-                self._server_info,
-                self._matter_client,
-                operation.node_id,
-                operation.endpoint_id,
-            )
-    
-            user = await resolve_lock_user(
-                self.hass,
-                self._server_info,
-                self._matter_client,
-                operation.node_id,
-                operation.endpoint_id,
-                operation.user_index,
-            )
-    
-            self._fire_operation_error(
-                operation,
-                entity_id,
-                user=user,
-            )
+        self,
+        operation: LockOperationError,
+    ) -> None:
+        """Resolve additional information and fire the HA event for an error."""
 
-    async def _async_handle_alarm (
-            self,
-            operation: DoorLockAlarm,
+        entity_id = resolve_entity_id(
+            self.hass,
+            self._server_info,
+            self._matter_client,
+            operation.node_id,
+            operation.endpoint_id,
+        )
+
+        user = await resolve_lock_user(
+            self.hass,
+            self._server_info,
+            self._matter_client,
+            operation.node_id,
+            operation.endpoint_id,
+            operation.user_index,
+        )
+
+        self._fire_operation_error(
+            operation,
+            entity_id,
+            user=user,
+        )
+
+    async def _async_handle_alarm(
+        self,
+        operation: DoorLockAlarm,
     ) -> None:
         """Resolve additional information and fire the HA event for an alarm."""
         entity_id = resolve_entity_id(
@@ -267,7 +255,7 @@ class MatterLockEventsManager:
             operation.node_id,
             operation.endpoint_id,
         )
-               
+
         self._fire_alarm(
             operation,
             entity_id,

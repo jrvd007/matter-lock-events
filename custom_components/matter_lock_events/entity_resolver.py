@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from chip.clusters import Objects as clusters
-
 from matter_server.client import MatterClient
 
 from .const import MATTER_LOCK_ENTITY_KEY

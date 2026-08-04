@@ -32,6 +32,7 @@ class LockOperation:
 
     credentials: tuple[LockCredential, ...]
 
+
 @dataclass(slots=True)
 class LockOperationError:
     """Represents a failed lock operation."""
@@ -49,6 +50,7 @@ class LockOperationError:
     source_node: int | None
 
     credentials: tuple[LockCredential, ...]
+
 
 @dataclass(slots=True)
 class DoorLockAlarm:

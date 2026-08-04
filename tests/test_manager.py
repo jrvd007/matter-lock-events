@@ -1,15 +1,18 @@
 """Tests for manager.py."""
 
+import asyncio
 from types import SimpleNamespace
-from unittest.mock import Mock
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 from chip.clusters import Objects as clusters
 
-from custom_components.matter_lock_events.const import EVENT_OPERATION, EVENT_OPERATION_ERROR, EVENT_ALARM
+from custom_components.matter_lock_events.const import (
+    EVENT_ALARM,
+    EVENT_OPERATION,
+    EVENT_OPERATION_ERROR,
+)
 from custom_components.matter_lock_events.manager import MatterLockEventsManager
 
-import asyncio
 
 class FakeBus:
     def __init__(self) -> None:
@@ -53,7 +56,7 @@ def test_handle_node_event_fires_home_assistant_event(
         lambda event: fake_operation,
     )
     monkeypatch.setattr(
-       "custom_components.matter_lock_events.manager.resolve_entity_id",
+        "custom_components.matter_lock_events.manager.resolve_entity_id",
         lambda *args, **kwargs: fake_entity_id,
     )
 
@@ -109,6 +112,7 @@ def test_handle_node_event_fires_home_assistant_event(
         fake_payload,
     )
 
+
 def test_handle_node_event_error_fires_home_assistant_event(
     monkeypatch,
 ) -> None:
@@ -140,10 +144,9 @@ def test_handle_node_event_error_fires_home_assistant_event(
         lambda event: fake_operation,
     )
     monkeypatch.setattr(
-       "custom_components.matter_lock_events.manager.resolve_entity_id",
+        "custom_components.matter_lock_events.manager.resolve_entity_id",
         lambda *args, **kwargs: fake_entity_id,
     )
-  
 
     serialize_mock = Mock(return_value=fake_payload)
 
@@ -161,7 +164,7 @@ def test_handle_node_event_error_fires_home_assistant_event(
     )
 
     manager._handle_node_event(SimpleNamespace(), event)
- 
+
     serialize_mock.assert_called_once_with(
         fake_operation,
         entity_id=fake_entity_id,
@@ -172,6 +175,7 @@ def test_handle_node_event_error_fires_home_assistant_event(
         EVENT_OPERATION_ERROR,
         fake_payload,
     )
+
 
 def test_handle_node_event_alarm_fires_home_assistant_event(
     monkeypatch,
@@ -201,10 +205,9 @@ def test_handle_node_event_alarm_fires_home_assistant_event(
         lambda event: fake_operation,
     )
     monkeypatch.setattr(
-       "custom_components.matter_lock_events.manager.resolve_entity_id",
+        "custom_components.matter_lock_events.manager.resolve_entity_id",
         lambda *args, **kwargs: fake_entity_id,
     )
-  
 
     serialize_mock = Mock(return_value=fake_payload)
 
@@ -222,7 +225,7 @@ def test_handle_node_event_alarm_fires_home_assistant_event(
     )
 
     manager._handle_node_event(SimpleNamespace(), event)
- 
+
     serialize_mock.assert_called_once_with(
         fake_operation,
         entity_id=fake_entity_id,
@@ -232,6 +235,7 @@ def test_handle_node_event_alarm_fires_home_assistant_event(
         EVENT_ALARM,
         fake_payload,
     )
+
 
 def test_handle_node_event_ignores_non_door_lock_event(monkeypatch) -> None:
     """Manager ignores unrelated Matter events."""

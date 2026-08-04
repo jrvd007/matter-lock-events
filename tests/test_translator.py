@@ -5,18 +5,18 @@ from matter_server.common.helpers.util import dataclass_from_dict
 from matter_server.common.models import MatterNodeEvent
 
 from custom_components.matter_lock_events.translator import (
+    translate_door_lock_alarm,
     translate_door_lock_operation,
     translate_lock_operation_error,
-    translate_door_lock_alarm,
 )
-
 from tests.fixtures.schlage_sense_pro_events import (
-    KEYPAD_LOCK, 
-    REMOTE_UNLOCK,
+    KEYPAD_LOCK,
     KEYPAD_UNLOCK,
     MANUAL_THUMBTURN_LOCK,
+    REMOTE_UNLOCK,
     WRONG_PIN,
 )
+
 
 def test_translate_remote_unlock() -> None:
     """Translate a remote unlock event."""
@@ -40,8 +40,14 @@ def test_translate_remote_unlock() -> None:
     assert operation is not None
     assert operation.node_id == 23
     assert operation.endpoint_id == 1
-    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
-    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kRemote
+    assert (
+        operation.operation_type
+        == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
+    )
+    assert (
+        operation.operation_source
+        == clusters.DoorLock.Enums.OperationSourceEnum.kRemote
+    )
     assert operation.user_index is None
     assert operation.fabric_index == 2
     assert operation.source_node == 112233
@@ -70,12 +76,18 @@ def test_translate_keypad_lock() -> None:
     assert operation is not None
     assert operation.node_id == 23
     assert operation.endpoint_id == 1
-    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
-    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kButton
+    assert (
+        operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
+    )
+    assert (
+        operation.operation_source
+        == clusters.DoorLock.Enums.OperationSourceEnum.kButton
+    )
     assert operation.user_index is None
     assert operation.fabric_index is None
     assert operation.source_node is None
     assert operation.credentials == ()
+
 
 def test_translate_keypad_unlock() -> None:
     """Translate a keypad unlock event."""
@@ -99,14 +111,24 @@ def test_translate_keypad_unlock() -> None:
     assert operation is not None
     assert operation.node_id == 23
     assert operation.endpoint_id == 1
-    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
-    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kKeypad
+    assert (
+        operation.operation_type
+        == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
+    )
+    assert (
+        operation.operation_source
+        == clusters.DoorLock.Enums.OperationSourceEnum.kKeypad
+    )
     assert operation.user_index == 1
     assert operation.fabric_index is None
     assert operation.source_node is None
     assert len(operation.credentials) == 1
-    assert operation.credentials[0].credential_type == clusters.DoorLock.Enums.CredentialTypeEnum.kPin
+    assert (
+        operation.credentials[0].credential_type
+        == clusters.DoorLock.Enums.CredentialTypeEnum.kPin
+    )
     assert operation.credentials[0].credential_index == 1
+
 
 def test_translate_manual_thumbturn_lock() -> None:
     """Translate a manual thumbturn lock event."""
@@ -130,12 +152,18 @@ def test_translate_manual_thumbturn_lock() -> None:
     assert operation is not None
     assert operation.node_id == 23
     assert operation.endpoint_id == 1
-    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
-    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kManual
+    assert (
+        operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kLock
+    )
+    assert (
+        operation.operation_source
+        == clusters.DoorLock.Enums.OperationSourceEnum.kManual
+    )
     assert operation.user_index is None
     assert operation.fabric_index is None
     assert operation.source_node is None
     assert operation.credentials == ()
+
 
 def test_translate_lock_operation_error() -> None:
     """Translate a lock error."""
@@ -159,13 +187,23 @@ def test_translate_lock_operation_error() -> None:
     assert operation is not None
     assert operation.node_id == 23
     assert operation.endpoint_id == 1
-    assert operation.operation_type == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
-    assert operation.operation_source == clusters.DoorLock.Enums.OperationSourceEnum.kKeypad
-    assert operation.operation_error == clusters.DoorLock.Enums.OperationErrorEnum.kInvalidCredential
+    assert (
+        operation.operation_type
+        == clusters.DoorLock.Enums.LockOperationTypeEnum.kUnlock
+    )
+    assert (
+        operation.operation_source
+        == clusters.DoorLock.Enums.OperationSourceEnum.kKeypad
+    )
+    assert (
+        operation.operation_error
+        == clusters.DoorLock.Enums.OperationErrorEnum.kInvalidCredential
+    )
     assert operation.user_index is None
     assert operation.fabric_index is None
     assert operation.source_node is None
     assert operation.credentials == ()
+
 
 def test_translate_door_lock_alarm() -> None:
     """Translate a lock alarm."""
@@ -178,7 +216,7 @@ def test_translate_door_lock_alarm() -> None:
             "event_id": clusters.DoorLock.Events.DoorLockAlarm.event_id,
             "data": {
                 "alarmCode": 0,
-            }
+            },
         },
     )
 

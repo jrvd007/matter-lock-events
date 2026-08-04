@@ -3,15 +3,15 @@
 from chip.clusters import Objects as clusters
 
 from custom_components.matter_lock_events.door_lock import (
+    DoorLockAlarm,
     LockCredential,
     LockOperation,
     LockOperationError,
-    DoorLockAlarm,
 )
 from custom_components.matter_lock_events.event_adapter import (
+    serialize_alarm,
     serialize_operation,
     serialize_operation_error,
-    serialize_alarm,
 )
 
 
@@ -30,7 +30,7 @@ def test_serialize_unlock_remote() -> None:
     )
 
     payload = serialize_operation(
-        operation,                      
+        operation,
         entity_id="lock.sense_pro",
         user=None,
     )
@@ -45,7 +45,7 @@ def test_serialize_unlock_remote() -> None:
         "source": "remote",
         "source_id": 7,
         "user_index": None,
-        "user_name":None,
+        "user_name": None,
         "fabric_index": 2,
         "source_node": 112233,
         "credentials": [],
@@ -82,11 +82,12 @@ def test_serialize_lock_button() -> None:
         "source": "button",
         "source_id": 5,
         "user_index": None,
-        "user_name":None,
+        "user_name": None,
         "fabric_index": None,
         "source_node": None,
         "credentials": [],
     }
+
 
 def test_serialize_unlock_keypad() -> None:
     """Serialize a keypad unlock operation."""
@@ -111,8 +112,8 @@ def test_serialize_unlock_keypad() -> None:
         operation,
         entity_id=None,
         user={
-        "user_index": 1,
-        "user_name": "John",
+            "user_index": 1,
+            "user_name": "John",
         },
     )
 
@@ -137,6 +138,7 @@ def test_serialize_unlock_keypad() -> None:
             }
         ],
     }
+
 
 def test_serialize_lock_manual() -> None:
     """Serialize a manual thumbturn lock operation."""
@@ -173,6 +175,7 @@ def test_serialize_lock_manual() -> None:
         "source_node": None,
         "credentials": [],
     }
+
 
 def test_serialize_operation_error() -> None:
     """Serialize a keypad unlock operation."""
@@ -213,13 +216,14 @@ def test_serialize_operation_error() -> None:
         "credentials": [],
     }
 
+
 def test_serialize_alarm() -> None:
     """Serialize a keypad unlock operation."""
 
     operation = DoorLockAlarm(
         node_id=23,
         endpoint_id=1,
-        alarm_code = clusters.DoorLock.Enums.AlarmCodeEnum.kLockJammed,
+        alarm_code=clusters.DoorLock.Enums.AlarmCodeEnum.kLockJammed,
     )
 
     payload = serialize_alarm(

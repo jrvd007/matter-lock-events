@@ -3,18 +3,16 @@
 from __future__ import annotations
 
 import logging
-
-_LOGGER = logging.getLogger(__name__)
-
 from typing import TYPE_CHECKING, Any
 
-from .const import DOMAIN, NAME, __version__
+from .const import NAME, __version__
 from .manager import MatterLockEventsManager
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
@@ -27,7 +25,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
 ) -> bool:
     """Set up a config entry."""
-    
+
     _LOGGER.info("%s %s", NAME, __version__)
 
     manager = MatterLockEventsManager(hass)
@@ -45,5 +43,5 @@ async def async_unload_entry(
     """Unload the config entry."""
 
     await entry.runtime_data.async_shutdown()
-    
+
     return True
