@@ -38,9 +38,7 @@ node_id: 23
 operation: unlock
 source: keypad
 
-user:
-  user_index: 1
-  user_name: John
+user_name: John
 ```
 
 ### `matter_lock_events.operation_error`
